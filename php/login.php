@@ -3,6 +3,7 @@
 include("conexao.php");
 
 if(isset($_POST['email']) && strlen($_POST['email']) > 0){
+    $erro = [];
 
     if(!isset($_SESSION))
         session_start();
@@ -25,7 +26,7 @@ if(isset($_POST['email']) && strlen($_POST['email']) > 0){
         }
     }
     if(count[$erro] == 0 || !isset($erro)){
-        echo "<script>alert('Login efetuado com sucesso!'); location.href='sucesso.php';</script>"
+        echo "<script>alert('Login efetuado com sucesso!'); location.href='sucesso.php';</script>";
     }
 }
 
@@ -35,16 +36,21 @@ if(isset($_POST['email']) && strlen($_POST['email']) > 0){
     <meta charset="utf-8">
 </head>
 <body>
-    <?php if(count[$erro]) > 0
+    <?php
+    $erro = []; 
+    if (!isset($erro) || count($erro) === 0) {
         foreach($erro as $msg){
-            echo "<p>$msg</p>"
-        }      
-    ?>
+            echo "<p>$msg</p>";
+        }  
+    }   
+    ?> 
+  <body>
     <form method="POST" action="">
-        <p><input value="" name="email" placeholder="E-mail" type="text"/></p>
-        <p><input name="senha" type="password"/></p>
-        <p><a href="">Esqueceu sua senha?</a></p>
-        <p><input value="Entrar" type="submi//t"/></p>
+      <p><input value="" name="email" placeholder=" E-mail" type="text"></p>
+      <p><input name="senha" type="password" placeholder=" Senha"></p>
+      <p><a href="esqueceusenha.php">Esqueceu sua senha?</a></p>
+      <p><input value="Entrar" type="button"></p>
     </form>
+    
 </body>
 </html>
