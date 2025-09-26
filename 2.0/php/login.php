@@ -5,7 +5,7 @@ include("conexao.php");
 $mensagem = "";
 
 if (isset($_SESSION['usuario_id'])) {
-    header("Location: home.php");
+    header("Location: index.php");
     exit();
 }
 
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (password_verify($senha, $usuario['senha'])) {
                 $_SESSION['usuario_id'] = $usuario['id'];
                 $_SESSION['usuario_nome'] = $usuario['nome'];
-                header("Location: home.php");
+                header("Location: index.php");
                 exit();
             } else {
                 $mensagem = "Email ou senha incorretos!";
