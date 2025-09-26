@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+.cabecalho {
+    background-color: #007bff;
+    color: white;
+    padding: 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.container-cabecalho {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.titulo-sistema {
+    font-size: 1.5em;
+    margin: 0;
+}
+
+.info-usuario {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.botao-sair {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.botao-sair:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.conteudo-principal {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.cartao-boas-vindas {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.cartao-boas-vindas h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.detalhes-usuario {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+    margin-top: 15px;
+}
+
+.item-detalhe {
+    margin-bottom: 10px;
+}
+
+.rotulo-detalhe {
+    font-weight: bold;
+    color: #666;
+}
