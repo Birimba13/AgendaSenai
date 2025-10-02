@@ -9,7 +9,7 @@ CREATE TABLE usuarios (
     senha VARCHAR(255) NOT NULL,
     data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );";
-if (mysqli_query($conexao, $sql)) {
+if (mysqli_query($mysqli, $sql)) {
     echo "Tabela 'usuarios' criada com sucesso.";
 } else {
     echo "Erro ao criar tabela: " . mysqli_error($conexao);

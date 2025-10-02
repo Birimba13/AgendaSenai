@@ -21,7 +21,7 @@
     padding: 20px 40px;
     display: flex;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 130px;
   }   
   
   .rotulo {
@@ -48,6 +48,24 @@
     margin-bottom: 25px;
     color: #0a2342; /* Azul escuro */
   }
+
+  .caixa-cadastro {
+    background: #ffffff; /* Fundo branco */
+    border-radius: 12px;
+    padding: 40px;
+    width: 350px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    margin-top: 40px; /* Espaço abaixo do cabeçalho */
+    color: #0a2342; /* Texto azul escuro */
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+  
+  .caixa-cadastro h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #0a2342; /* Azul escuro */
+  }
+  
   
   /* Campos de input */
   .campo-input {
