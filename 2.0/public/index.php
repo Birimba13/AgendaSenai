@@ -17,8 +17,8 @@ $usuario = $resultado->fetch_assoc();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Agenda Senai</title>
-    <link rel = "stylesheet" href="../css/home.css">
-    <link rel = "stylesheet" href="../css/index.css">
+    <link rel = "stylesheet" href="../assets/css/home.css">
+    <link rel = "stylesheet" href="../assets/css/index.css">
 </head>
 <body>
     <div class="header">
@@ -32,9 +32,7 @@ $usuario = $resultado->fetch_assoc();
         </div>
     </div>
     <div class="container">
-        
-        
-        <!-- Seção: Cadastros -->
+        <h2 class="page-title">Agenda Senai - Menu Principal</h2>
         <div class="section">
             <h3 class="section-title">Cadastros</h3>
             <div class="menu-grid">
@@ -57,8 +55,6 @@ $usuario = $resultado->fetch_assoc();
                 </div>
             </div>
         </div>
-
-        <!-- Seção: Agenda e Calendário -->
         <div class="section">
             <h3 class="section-title">Agenda e Calendário</h3>
             <div class="menu-grid">
@@ -78,8 +74,6 @@ $usuario = $resultado->fetch_assoc();
                 </div>
             </div>
         </div>
-
-        <!-- Seção: Notificações e Relatórios -->
         <div class="section">
             <h3 class="section-title">Notificações e Relatórios</h3>
             <div class="menu-grid">
@@ -94,8 +88,6 @@ $usuario = $resultado->fetch_assoc();
                 </div>
             </div>
         </div>
-
-        <!-- Seção: Configurações -->
         <div class="section">
             <h3 class="section-title">Configurações do Sistema</h3>
             <div class="menu-grid">
@@ -107,33 +99,6 @@ $usuario = $resultado->fetch_assoc();
             </div>
         </div>
     </div>
-
-    <script>
-        function navigate(page) {
-            // Simulação de navegação
-            window.location.href = page;
-        }
-
-        function logout() {
-            if (confirm('Deseja realmente sair do sistema?')) {
-                window.location.href = 'logout.php';
-            }
-        }
-
-        // Animação de entrada das cards
-        document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.menu-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                
-                setTimeout(() => {
-                    card.style.transition = 'all 0.5s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-        });
-    </script>
+    <script src="../assets/js/home.js"></script>
 </body>
 </html>

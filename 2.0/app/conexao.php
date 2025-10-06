@@ -1,9 +1,5 @@
 <?php
-$servidor = "localhost";
-$usuario = "root";
-$senha = "";
-$banco = "agendasenai";
-
+include '../config/database.php'
 $mysqli = new mysqli($servidor, $usuario, $senha, $banco);
 
 if ($mysqli->connect_error) {
