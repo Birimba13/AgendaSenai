@@ -27,7 +27,7 @@ $usuario = $resultado->fetch_assoc();
         <div class="user-info">
             <div class="info-usuario">
                 <span>Olá, <?php echo htmlspecialchars($usuario['nome']); ?>!</span>
-                <a href="logout.php" class="botao-sair">Sair</a>
+                <a href="../app/logout.php" class="botao-sair">Sair</a>
             </div>
         </div>
     </div>
@@ -38,7 +38,7 @@ $usuario = $resultado->fetch_assoc();
             <div class="menu-grid">
                 <div class="menu-card admin-only" onclick="navigate('professores.php')">
                     <h3>Professores</h3>
-                    <p>Cadastrar e gerenciar professores, competências, turnos e disponibilidade</p>
+                    <p>Gerenciar professores, carga horária, turnos e competências</p>
                     <span class="badge">Admin</span>
                 </div>
 
@@ -53,24 +53,25 @@ $usuario = $resultado->fetch_assoc();
                     <p>Gerenciar turmas e aulas dos cursos</p>
                     <span class="badge">Admin</span>
                 </div>
+                <div class="menu-card admin-only" onclick="navigate('turmas.php')">
+                    <h3>Alunos</h3>
+                    <p>Gerenciar alunos já matriculados no SENAI</p>
+                    <span class="badge">Admin</span>
+                </div>
             </div>
         </div>
         <div class="section">
             <h3 class="section-title">Agenda e Calendário</h3>
             <div class="menu-grid">
-                <div class="menu-card" onclick="navigate('agenda.php')">
-                    <h3>Criar Agenda</h3>
-                    <p>Criar e editar agenda de professores manualmente</p>
-                </div>
 
                 <div class="menu-card" onclick="navigate('visualizar_agenda.php')">
-                    <h3>Visualizar Agenda</h3>
-                    <p>Visualizar agenda semanal dos professores</p>
+                    <h3>Agenda Semanal</h3>
+                    <p>Visualizar e ajustar agenda semanal dos professores</p>
                 </div>
 
                 <div class="menu-card" onclick="navigate('calendario.php')">
-                    <h3>Calendário</h3>
-                    <p>Visualização anual e exceções de datas</p>
+                    <h3>Calendário Anual</h3>
+                    <p>Visualizar e ajustar agenda anual e exceções de datas</p>
                 </div>
             </div>
         </div>

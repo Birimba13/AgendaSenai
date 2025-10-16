@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
         
         <div class="link-registro">
-            <a href="esqueceuasenha.php">Redefinir senha</a>
+            <a href="../app/esqueceuasenha.php">Redefinir senha</a>
             <a href="cadastro.php">Criar conta</a>
         </div>
     </div>
