@@ -1,5 +1,5 @@
 <?php
-include("conexao.php");
+include("../app/conexao.php");
 
 $mensagem = "";
 
@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($stmt->execute()) {
                 $mensagem = "Usuário cadastrado com sucesso!";
+                header("Location: login.php");
             } else {
                 $mensagem = "Erro ao cadastrar usuário!";
             }

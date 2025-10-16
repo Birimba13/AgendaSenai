@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("conexao.php");
+include("../app/conexao.php");
 
 $mensagem = "";
 
