@@ -62,37 +62,6 @@
                 </thead>
                 <tbody>
                     <!-- Dados de exemplo -->
-                    <tr>
-                        <td>João Silva</td>
-                        <td>joao.silva@senai.br</td>
-                        <td>
-                            <span class="badge badge-turno">Manhã</span>
-                            <span class="badge badge-turno">Tarde</span>
-                        </td>
-                        <td>20h / 40h</td>
-                        <td><span class="badge badge-ativo">Ativo</span></td>
-                        <td>
-                            <div class="acoes">
-                                <button class="btn-acao btn-editar" onclick="editarProfessor(1)">Editar</button>
-                                <button class="btn-acao btn-excluir" onclick="excluirProfessor(1)">Excluir</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Maria Santos</td>
-                        <td>maria.santos@senai.br</td>
-                        <td>
-                            <span class="badge badge-turno">Manhã</span>
-                        </td>
-                        <td>15h / 20h</td>
-                        <td><span class="badge badge-ativo">Ativo</span></td>
-                        <td>
-                            <div class="acoes">
-                                <button class="btn-acao btn-editar" onclick="editarProfessor(2)">Editar</button>
-                                <button class="btn-acao btn-excluir" onclick="excluirProfessor(2)">Excluir</button>
-                            </div>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
