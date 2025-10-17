@@ -82,7 +82,20 @@ $sqls = [
       FOREIGN KEY (curso_id) REFERENCES cursos(id) ON DELETE CASCADE,
       FOREIGN KEY (disciplina_id) REFERENCES disciplinas(id) ON DELETE CASCADE,
       FOREIGN KEY (horario_id) REFERENCES horarios(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+    "CREATE TABLE alunos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    cpf VARCHAR(14) UNIQUE,
+    telefone VARCHAR(20),
+    data_nascimento DATE,
+    curso_id INT,
+    data_matricula DATE NOT NULL,
+    status ENUM('ativo','inativo','concluido','trancado') NOT NULL DEFAULT 'ativo',
+    FOREIGN KEY (curso_id) REFERENCES cursos(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
 ];
 
 // Executa cada query

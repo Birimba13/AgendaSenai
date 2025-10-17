@@ -53,7 +53,7 @@ $usuario = $resultado->fetch_assoc();
                     <p>Gerenciar turmas e aulas dos cursos</p>
                     <span class="badge">Admin</span>
                 </div>
-                <div class="menu-card admin-only" onclick="navigate('turmas.php')">
+                <div class="menu-card admin-only" onclick="navigate('alunos.php')">
                     <h3>Alunos</h3>
                     <p>Gerenciar alunos já matriculados no SENAI</p>
                     <span class="badge">Admin</span>
