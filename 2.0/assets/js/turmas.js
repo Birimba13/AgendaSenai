@@ -1,9 +1,61 @@
 let turmas = [];
+let disciplinas = [];
 let turmaEditando = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     carregarTurmas();
+    carregarDisciplinas();
 });
+
+// NOVA FUNÇÃO: Carregar disciplinas
+async function carregarDisciplinas() {
+    try {
+        const response = await fetch('../api/get_disciplinas.php');
+        const result = await response.json();
+        
+        if (result.success) {
+            disciplinas = result.data;
+            preencherSelectDisciplinas();
+            preencherFiltroDisciplinas();
+        }
+    } catch (error) {
+        console.error('Erro ao carregar disciplinas:', error);
+    }
+}
+
+// Preencher select de disciplinas no modal
+function preencherSelectDisciplinas() {
+    const select = document.getElementById('disciplinas');
+    select.innerHTML = '';
+    
+    if (disciplinas.length === 0) {
+        const option = document.createElement('option');
+        option.textContent = 'Nenhuma disciplina cadastrada';
+        option.disabled = true;
+        select.appendChild(option);
+        return;
+    }
+    
+    disciplinas.forEach(disc => {
+        const option = document.createElement('option');
+        option.value = disc.id;
+        option.textContent = `${disc.nome} (${disc.sigla})`;
+        select.appendChild(option);
+    });
+}
+
+// Preencher filtro de disciplinas
+function preencherFiltroDisciplinas() {
+    const select = document.getElementById('filtroDisciplina');
+    select.innerHTML = '<option value="">Todas</option>';
+    
+    disciplinas.forEach(disc => {
+        const option = document.createElement('option');
+        option.value = disc.id;
+        option.textContent = disc.nome;
+        select.appendChild(option);
+    });
+}
 
 async function carregarTurmas() {
     const container = document.getElementById('turmasContainer');

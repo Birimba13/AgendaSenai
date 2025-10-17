@@ -31,6 +31,7 @@ try {
     $nome = trim($dados['nome']);
     $data_inicio = $dados['data_inicio'];
     $data_fim = $dados['data_fim'];
+    $disciplinas = isset($dados['disciplinas']) ? $dados['disciplinas'] : [];
     $turma_id = isset($dados['id']) ? (int)$dados['id'] : null;
     
     // Valida se data fim é maior que data início
@@ -67,6 +68,23 @@ try {
             throw new Exception('Erro ao atualizar turma');
         }
         
+        // Remove disciplinas antigas
+        $query = "DELETE FROM curso_disciplinas WHERE curso_id = ?";
+        $stmt = $mysqli->prepare($query);
+        $stmt->bind_param("i", $turma_id);
+        $stmt->execute();
+        
+        // Adiciona novas disciplinas
+        if (!empty($disciplinas)) {
+            $query = "INSERT INTO curso_disciplinas (curso_id, disciplina_id) VALUES (?, ?)";
+            $stmt = $mysqli->prepare($query);
+            
+            foreach ($disciplinas as $disciplina_id) {
+                $stmt->bind_param("ii", $turma_id, $disciplina_id);
+                $stmt->execute();
+            }
+        }
+        
         $mysqli->commit();
         
         echo json_encode([
@@ -99,6 +117,17 @@ try {
         }
         
         $turma_id = $mysqli->insert_id;
+        
+        // Adiciona disciplinas
+        if (!empty($disciplinas)) {
+            $query = "INSERT INTO curso_disciplinas (curso_id, disciplina_id) VALUES (?, ?)";
+            $stmt = $mysqli->prepare($query);
+            
+            foreach ($disciplinas as $disciplina_id) {
+                $stmt->bind_param("ii", $turma_id, $disciplina_id);
+                $stmt->execute();
+            }
+        }
         
         $mysqli->commit();
         
