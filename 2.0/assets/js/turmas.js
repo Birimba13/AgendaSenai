@@ -1,3 +1,4 @@
+alert('turmas.js carregado!');
 let turmas = [];
 let disciplinas = [];
 let turmaEditando = null;
@@ -23,7 +24,7 @@ async function carregarDisciplinas() {
     }
 }
 
-// Preencher select de disciplinas no modal
+// Preencher select de disciplinas no modal (Permite múltiplas)
 function preencherSelectDisciplinas() {
     const select = document.getElementById('disciplinas');
     select.innerHTML = '';
@@ -63,6 +64,7 @@ async function carregarTurmas() {
     try {
         container.innerHTML = '<div style="text-align: center; padding: 40px; grid-column: 1/-1;"><div style="font-size: 2rem; color: #0a2342;">⏳</div><br>Carregando turmas...</div>';
         
+        // 💡 Assumindo que o get_turmas.php já retorna 'total_disciplinas' e 'disciplinas_ids' (string de IDs separados por vírgula)
         const response = await fetch('../api/get_turmas.php');
         const result = await response.json();
         
@@ -96,6 +98,9 @@ function renderizarTurmas(listaTurmas) {
             'aguardando': '<span class="badge" style="background: #fff3cd; color: #856404;">Aguardando</span>'
         };
         
+        // 💡 Garante que total_disciplinas é um número ou string. Se não estiver vindo da API, esta linha não corrige.
+        const totalDisciplinas = turma.total_disciplinas || 0; 
+
         return `
             <div class="turma-card">
                 <div class="card-header">
@@ -108,7 +113,7 @@ function renderizarTurmas(listaTurmas) {
                     </div>
                     <div class="info-row">
                         <span class="info-label">Disciplinas:</span>
-                        <span class="info-value">${turma.total_disciplinas} disciplinas</span>
+                        <span class="info-value">${totalDisciplinas} disciplinas</span> 
                     </div>
                     <div class="info-row">
                         <span class="info-label">Status:</span>
@@ -124,15 +129,32 @@ function renderizarTurmas(listaTurmas) {
     }).join('');
 }
 
+// 💡 Lógica de filtro corrigida
 function filtrarTurmas() {
     const busca = document.getElementById('busca').value.toLowerCase();
     const status = document.getElementById('filtroStatus').value;
-    
+    const disciplinaId = document.getElementById('filtroDisciplina').value; // ID da disciplina selecionada
+
     const turmasFiltradas = turmas.filter(turma => {
         const matchBusca = busca === '' || turma.nome.toLowerCase().includes(busca);
         const matchStatus = status === '' || turma.status === status;
         
-        return matchBusca && matchStatus;
+        let matchDisciplina = true;
+
+        if (disciplinaId !== '') {
+             // 💡 CRÍTICO: Assumimos que a API retorna um campo 'disciplinas_ids' 
+             // na turma, contendo os IDs das disciplinas vinculadas, separados por vírgula.
+             // Ex: turma.disciplinas_ids = "1,5,10"
+             if (turma.disciplinas_ids) {
+                const turmaDisciplinaIds = String(turma.disciplinas_ids).split(',');
+                matchDisciplina = turmaDisciplinaIds.includes(disciplinaId);
+             } else {
+                 // Se a API não fornece os IDs, não é possível filtrar.
+                 matchDisciplina = false; 
+             }
+        }
+        
+        return matchBusca && matchStatus && matchDisciplina;
     });
     
     renderizarTurmas(turmasFiltradas);
@@ -143,6 +165,10 @@ function abrirModal() {
     document.getElementById('modal').classList.add('active');
     document.getElementById('modalTitulo').textContent = 'Adicionar Turma';
     document.getElementById('formTurma').reset();
+    // Limpar seleções de disciplina
+    document.querySelectorAll('#disciplinas option').forEach(option => {
+        option.selected = false;
+    });
 }
 
 function fecharModal() {
@@ -150,6 +176,7 @@ function fecharModal() {
     turmaEditando = null;
 }
 
+// 💡 Lógica de edição atualizada para carregar múltiplas disciplinas
 function editarTurma(id) {
     const turma = turmas.find(t => t.id === id);
     
@@ -166,6 +193,14 @@ function editarTurma(id) {
     document.getElementById('nomeTurma').value = turma.nome;
     document.getElementById('dataInicio').value = turma.data_inicio;
     document.getElementById('dataFim').value = turma.data_fim;
+
+    // Selecionar disciplinas existentes
+    const selectDisciplinas = document.getElementById('disciplinas');
+    const idsVinculados = turma.disciplinas_ids ? String(turma.disciplinas_ids).split(',') : [];
+
+    selectDisciplinas.querySelectorAll('option').forEach(option => {
+        option.selected = idsVinculados.includes(option.value);
+    });
 }
 
 async function excluirTurma(id) {
@@ -203,31 +238,34 @@ async function excluirTurma(id) {
     }
 }
 
+// 💡 Lógica de submissão atualizada para enviar IDs das disciplinas
 document.getElementById('formTurma').addEventListener('submit', async function (e) {
     e.preventDefault();
     
+    // Obter IDs das disciplinas selecionadas do <select> múltiplo
+    const selectElement = document.getElementById('disciplinas');
+    const selectedDisciplinas = Array.from(selectElement.selectedOptions).map(option => option.value);
+
+    // Monta o objeto de dados que será enviado para a API
     const dados = {
         nome: document.getElementById('nomeTurma').value.trim(),
         data_inicio: document.getElementById('dataInicio').value,
-        data_fim: document.getElementById('dataFim').value
+        data_fim: document.getElementById('dataFim').value,
+        // Garante que a chave 'disciplinas' seja incluída no objeto
+        disciplinas: selectedDisciplinas 
     };
     
     if (turmaEditando) {
         dados.id = turmaEditando.id;
     }
+
+    // --- PONTO DE DEPURAÇÃO CRÍTICO ---
+    // Isso irá mostrar no console do navegador (F12) o objeto exato que está sendo enviado.
+    console.log("Enviando para a API:", dados); 
     
-    if (!dados.nome) {
-        alert('Nome é obrigatório!');
-        return;
-    }
-    
-    if (!dados.data_inicio) {
-        alert('Data de início é obrigatória!');
-        return;
-    }
-    
-    if (!dados.data_fim) {
-        alert('Data de fim é obrigatória!');
+    // Validações...
+    if (!dados.nome || !dados.data_inicio || !dados.data_fim) {
+        alert('Nome, data de início e data de fim são obrigatórios!');
         return;
     }
     
@@ -252,6 +290,7 @@ document.getElementById('formTurma').addEventListener('submit', async function (
             fecharModal();
             carregarTurmas();
         } else {
+            // Mostra a mensagem de erro que vem do PHP (se houver)
             alert('Erro: ' + result.message);
         }
     } catch (error) {

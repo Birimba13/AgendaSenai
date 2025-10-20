@@ -57,10 +57,10 @@ try {
         
         // Atualiza turma
         $query = "UPDATE cursos SET 
-                    nome = ?, 
-                    data_inicio = ?, 
-                    data_fim = ? 
-                  WHERE id = ?";
+                          nome = ?, 
+                          data_inicio = ?, 
+                          data_fim = ? 
+                        WHERE id = ?";
         $stmt = $mysqli->prepare($query);
         $stmt->bind_param("sssi", $nome, $data_inicio, $data_fim, $turma_id);
         
@@ -80,7 +80,9 @@ try {
             $stmt = $mysqli->prepare($query);
             
             foreach ($disciplinas as $disciplina_id) {
-                $stmt->bind_param("ii", $turma_id, $disciplina_id);
+                // CORREÇÃO: Garante que o ID da disciplina é um inteiro (necessário para bind_param "ii")
+                $disciplina_id_int = (int)$disciplina_id; 
+                $stmt->bind_param("ii", $turma_id, $disciplina_id_int);
                 $stmt->execute();
             }
         }
@@ -124,7 +126,9 @@ try {
             $stmt = $mysqli->prepare($query);
             
             foreach ($disciplinas as $disciplina_id) {
-                $stmt->bind_param("ii", $turma_id, $disciplina_id);
+                // CORREÇÃO: Garante que o ID da disciplina é um inteiro (necessário para bind_param "ii")
+                $disciplina_id_int = (int)$disciplina_id;
+                $stmt->bind_param("ii", $turma_id, $disciplina_id_int);
                 $stmt->execute();
             }
         }

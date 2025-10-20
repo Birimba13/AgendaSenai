@@ -5,43 +5,36 @@ header('Access-Control-Allow-Origin: *');
 require_once '../app/conexao.php';
 
 try {
-    $turma_id = isset($_GET['turma_id']) ? (int)$_GET['turma_id'] : 0;
-    
-    if ($turma_id <= 0) {
-        throw new Exception('ID da turma inválido');
+    // 1. Verifica se o ID do curso (turma) foi fornecido
+    if (!isset($_GET['curso_id'])) {
+        throw new Exception('ID do curso não fornecido.');
     }
     
-    $query = "SELECT d.id, d.nome, d.sigla, d.carga_horaria
-              FROM disciplinas d
-              INNER JOIN curso_disciplinas cd ON d.id = cd.disciplina_id
-              WHERE cd.curso_id = ?
-              ORDER BY d.nome";
-    
+    $curso_id = (int)$_GET['curso_id'];
+
+    // 2. Busca os IDs das disciplinas vinculadas
+    $query = "SELECT disciplina_id FROM curso_disciplinas WHERE curso_id = ?";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param("i", $turma_id);
+    $stmt->bind_param("i", $curso_id);
     $stmt->execute();
     $result = $stmt->get_result();
     
-    $disciplinas = [];
-    
+    $disciplina_ids = [];
     while ($row = $result->fetch_assoc()) {
-        $disciplinas[] = [
-            'id' => (int)$row['id'],
-            'nome' => $row['nome'],
-            'sigla' => $row['sigla'],
-            'carga_horaria' => (int)$row['carga_horaria']
-        ];
+        // 3. Adiciona o ID ao array, garantindo que seja um inteiro
+        $disciplina_ids[] = (int)$row['disciplina_id']; 
     }
     
+    // 4. Retorna o array de IDs
     echo json_encode([
         'success' => true,
-        'data' => $disciplinas
+        'data' => $disciplina_ids
     ]);
     
 } catch (Exception $e) {
-    http_response_code(400);
+    http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => $e->getMessage()
+        'message' => 'Erro ao buscar disciplinas da turma: ' . $e->getMessage()
     ]);
 }

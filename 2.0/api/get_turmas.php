@@ -10,9 +10,13 @@ try {
                 c.nome,
                 c.data_inicio,
                 c.data_fim,
-                COUNT(DISTINCT cd.disciplina_id) as total_disciplinas
+                -- 1. CONTAGEM para o card
+                COUNT(cd.disciplina_id) AS total_disciplinas,
+                -- 2. CRUCIAL: IDs concatenados para filtro e edição no JavaScript
+                GROUP_CONCAT(cd.disciplina_id) AS disciplinas_ids
               FROM cursos c
               LEFT JOIN curso_disciplinas cd ON c.id = cd.curso_id
+              -- Garante que todas as turmas apareçam, mesmo sem disciplinas
               GROUP BY c.id, c.nome, c.data_inicio, c.data_fim
               ORDER BY c.data_inicio DESC, c.nome";
     
@@ -39,6 +43,7 @@ try {
             'data_inicio' => $row['data_inicio'],
             'data_fim' => $row['data_fim'],
             'total_disciplinas' => (int)$row['total_disciplinas'],
+            'disciplinas_ids' => $row['disciplinas_ids'], 
             'status' => $status
         ];
     }
