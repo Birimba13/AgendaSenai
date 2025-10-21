@@ -3,6 +3,7 @@ let turmas = [];
 let alunoEditando = null;
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM carregado, iniciando sistema...');
     carregarTurmas();
     carregarAlunos();
     aplicarMascaras();
@@ -12,11 +13,21 @@ document.addEventListener('DOMContentLoaded', function() {
 async function carregarTurmas() {
     try {
         const response = await fetch('../api/get_turmas.php');
-        const result = await response.json();
+        const text = await response.text();
+        
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            console.error('Erro ao parsear turmas:', e);
+            console.log('Resposta:', text);
+            return;
+        }
         
         if (result.success) {
             turmas = result.data;
             preencherSelectTurmas();
+            console.log('Turmas carregadas:', turmas.length);
         }
     } catch (error) {
         console.error('Erro ao carregar turmas:', error);
@@ -26,6 +37,11 @@ async function carregarTurmas() {
 function preencherSelectTurmas() {
     const selectFiltro = document.getElementById('filtroCurso');
     const selectForm = document.getElementById('cursoId');
+    
+    if (!selectFiltro || !selectForm) {
+        console.error('Elementos select não encontrados');
+        return;
+    }
     
     // Preenche filtro
     selectFiltro.innerHTML = '<option value="">Todas</option>';
@@ -43,28 +59,57 @@ function preencherSelectTurmas() {
 async function carregarAlunos() {
     const tbody = document.querySelector('#tabelaAlunos tbody');
     
+    if (!tbody) {
+        console.error('Tbody não encontrado');
+        return;
+    }
+    
     try {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;"><div style="font-size: 2rem; color: #0a2342;">⏳</div><br>Carregando alunos...</td></tr>';
         
         const response = await fetch('../api/get_alunos.php');
-        const result = await response.json();
+        const text = await response.text();
         
-        if (result.success && result.data.length > 0) {
+        console.log('Resposta da API get_alunos:', text);
+        
+        // Tenta fazer parse do JSON
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (parseError) {
+            console.error('Erro ao fazer parse do JSON:', parseError);
+            console.error('Texto recebido:', text);
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #dc2626;">⚠️<br><br>Erro ao processar resposta da API.<br><small>Verifique o console para mais detalhes</small></td></tr>';
+            return;
+        }
+        
+        console.log('Resultado parseado:', result);
+        
+        if (result.success && result.data && result.data.length > 0) {
             alunos = result.data;
+            console.log('Alunos carregados:', alunos.length);
             renderizarAlunos(alunos);
-        } else {
+        } else if (result.success) {
+            console.log('Nenhum aluno encontrado');
             tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Nenhum aluno encontrado. <button class="btn-acao btn-editar" onclick="abrirModal()" style="margin-top: 10px;">Adicionar Primeiro Aluno</button></td></tr>';
+        } else {
+            throw new Error(result.message || 'Erro desconhecido');
         }
     } catch (error) {
         console.error('Erro ao carregar alunos:', error);
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #dc2626;">⚠️<br><br>Erro ao carregar alunos. Tente novamente mais tarde.</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px; color: #dc2626;">⚠️<br><br>Erro: ${error.message}</td></tr>`;
     }
 }
 
 function renderizarAlunos(listaAlunos) {
     const tbody = document.querySelector('#tabelaAlunos tbody');
     
-    if (listaAlunos.length === 0) {
+    if (!tbody) {
+        console.error('Tbody não encontrado');
+        return;
+    }
+    
+    if (!listaAlunos || listaAlunos.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Nenhum aluno encontrado.</td></tr>';
         return;
     }
@@ -94,8 +139,8 @@ function renderizarAlunos(listaAlunos) {
             <td>${aluno.curso_nome || 'Sem turma'}</td>
             <td>${dataMatricula}</td>
             <td>
-                <span class="badge ${statusBadge[aluno.status]}">
-                    ${statusTexto[aluno.status]}
+                <span class="badge ${statusBadge[aluno.status] || 'badge'}">
+                    ${statusTexto[aluno.status] || aluno.status}
                 </span>
             </td>
             <td>
@@ -107,6 +152,8 @@ function renderizarAlunos(listaAlunos) {
         </tr>
         `;
     }).join('');
+    
+    console.log('Tabela renderizada com', listaAlunos.length, 'alunos');
 }
 
 function filtrarTabela() {
@@ -115,17 +162,14 @@ function filtrarTabela() {
     const status = document.getElementById('filtroStatus').value;
     
     const alunosFiltrados = alunos.filter(aluno => {
-        // Filtro de busca
         const matchBusca = busca === '' || 
             aluno.nome.toLowerCase().includes(busca) || 
             aluno.email.toLowerCase().includes(busca) ||
             (aluno.cpf && aluno.cpf.includes(busca));
         
-        // Filtro de curso
         const matchCurso = cursoId === '' || 
             (aluno.curso_id && aluno.curso_id.toString() === cursoId);
         
-        // Filtro de status
         const matchStatus = status === '' || aluno.status === status;
         
         return matchBusca && matchCurso && matchStatus;
@@ -136,17 +180,25 @@ function filtrarTabela() {
 
 function abrirModal() {
     alunoEditando = null;
-    document.getElementById('modal').classList.add('active');
+    const modal = document.getElementById('modal');
+    if (!modal) {
+        console.error('Modal não encontrado');
+        return;
+    }
+    
+    modal.classList.add('active');
     document.getElementById('modalTitulo').textContent = 'Adicionar Aluno';
     document.getElementById('formAluno').reset();
     
-    // Define data de matrícula padrão como hoje
     const hoje = new Date().toISOString().split('T')[0];
     document.getElementById('dataMatricula').value = hoje;
 }
 
 function fecharModal() {
-    document.getElementById('modal').classList.remove('active');
+    const modal = document.getElementById('modal');
+    if (!modal) return;
+    
+    modal.classList.remove('active');
     alunoEditando = null;
 }
 
@@ -186,7 +238,7 @@ async function excluirAluno(id) {
     }
     
     try {
-        const response = await fetch('../api/delete_aluno.php', {
+        const response = await fetch('../api/delete_alunos.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -194,7 +246,16 @@ async function excluirAluno(id) {
             body: `id=${id}`
         });
         
-        const result = await response.json();
+        const text = await response.text();
+        let result;
+        
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            console.error('Erro ao parsear resposta de exclusão:', e);
+            alert('Erro ao processar resposta do servidor');
+            return;
+        }
         
         if (result.success) {
             alert(result.message);
@@ -208,7 +269,7 @@ async function excluirAluno(id) {
     }
 }
 
-document.getElementById('formAluno').addEventListener('submit', async function (e) {
+document.getElementById('formAluno')?.addEventListener('submit', async function (e) {
     e.preventDefault();
     
     const dados = {
@@ -226,7 +287,6 @@ document.getElementById('formAluno').addEventListener('submit', async function (
         dados.id = alunoEditando.id;
     }
     
-    // Validações
     if (!dados.nome) {
         alert('Nome é obrigatório!');
         return;
@@ -243,7 +303,7 @@ document.getElementById('formAluno').addEventListener('submit', async function (
     }
     
     try {
-        const response = await fetch('../api/save_aluno.php', {
+        const response = await fetch('../api/save_alunos.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -251,7 +311,17 @@ document.getElementById('formAluno').addEventListener('submit', async function (
             body: JSON.stringify(dados)
         });
         
-        const result = await response.json();
+        const text = await response.text();
+        let result;
+        
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            console.error('Erro ao parsear resposta de salvamento:', e);
+            console.log('Resposta:', text);
+            alert('Erro ao processar resposta do servidor');
+            return;
+        }
         
         if (result.success) {
             alert(result.message);
@@ -266,13 +336,18 @@ document.getElementById('formAluno').addEventListener('submit', async function (
     }
 });
 
-// Máscaras para CPF e Telefone
 function aplicarMascaras() {
     const cpfInput = document.getElementById('cpf');
     const telefoneInput = document.getElementById('telefone');
     
+    if (!cpfInput || !telefoneInput) {
+        console.error('Inputs de CPF ou telefone não encontrados');
+        return;
+    }
+    
     cpfInput.addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
+        
         if (value.length <= 11) {
             value = value.replace(/(\d{3})(\d)/, '$1.$2');
             value = value.replace(/(\d{3})(\d)/, '$1.$2');
@@ -283,17 +358,24 @@ function aplicarMascaras() {
     
     telefoneInput.addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
+        
         if (value.length <= 11) {
-            value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
-            value = value.replace(/(\d)(\d{4})$/, '$1-$2');
+            if (value.length <= 10) {
+                value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+                value = value.replace(/(\d)(\d{4})$/, '$1-$2');
+            } else {
+                value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+                value = value.replace(/(\d)(\d{4})$/, '$1-$2');
+            }
             e.target.value = value;
         }
     });
 }
 
-// Fechar modal ao clicar fora
-document.getElementById('modal').addEventListener('click', function (e) {
+document.getElementById('modal')?.addEventListener('click', function (e) {
     if (e.target === this) {
         fecharModal();
     }
 });
+
+console.log('Script alunos.js carregado com sucesso');

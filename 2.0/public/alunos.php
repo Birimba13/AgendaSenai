@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alunos - Agenda Senai</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/alunos.css">
 </head>
 <body>
     <div class="header">
@@ -77,34 +77,44 @@
             <form id="formAluno">
                 <div class="form-group">
                     <label>Nome Completo *</label>
-                    <input type="text" id="nome" required>
+                    <input type="text" id="nome" required placeholder="Digite o nome completo">
                 </div>
-                <div class="form-group">
-                    <label>Email *</label>
-                    <input type="email" id="email" required>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="email" required placeholder="email@exemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>CPF</label>
+                        <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>CPF</label>
-                    <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Telefone</label>
+                        <input type="text" id="telefone" placeholder="(00) 00000-0000" maxlength="15">
+                    </div>
+                    <div class="form-group">
+                        <label>Data de Nascimento</label>
+                        <input type="date" id="dataNascimento">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Telefone</label>
-                    <input type="text" id="telefone" placeholder="(00) 00000-0000" maxlength="15">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Turma</label>
+                        <select id="cursoId">
+                            <option value="">Sem turma</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Data de Matrícula *</label>
+                        <input type="date" id="dataMatricula" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Data de Nascimento</label>
-                    <input type="date" id="dataNascimento">
-                </div>
-                <div class="form-group">
-                    <label>Turma</label>
-                    <select id="cursoId">
-                        <option value="">Sem turma</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Data de Matrícula *</label>
-                    <input type="date" id="dataMatricula" required>
-                </div>
+
                 <div class="form-group">
                     <label>Status</label>
                     <select id="status">
@@ -114,6 +124,7 @@
                         <option value="trancado">Trancado</option>
                     </select>
                 </div>
+
                 <div class="form-actions">
                     <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
                     <button type="submit" class="btn-salvar">Salvar</button>

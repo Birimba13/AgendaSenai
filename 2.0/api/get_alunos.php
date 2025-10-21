@@ -1,10 +1,19 @@
 <?php
+// Desabilita exibição de erros para não quebrar o JSON
+error_reporting(0);
+ini_set('display_errors', 0);
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 require_once '../app/conexao.php';
 
 try {
+    // Verifica se a conexão foi estabelecida
+    if (!isset($mysqli) || $mysqli->connect_error) {
+        throw new Exception('Erro na conexão com o banco de dados');
+    }
+    
     $query = "SELECT 
                 a.id,
                 a.nome,
@@ -21,6 +30,10 @@ try {
               ORDER BY a.nome";
     
     $result = $mysqli->query($query);
+    
+    if (!$result) {
+        throw new Exception('Erro ao executar query: ' . $mysqli->error);
+    }
     
     $alunos = [];
     
@@ -42,12 +55,13 @@ try {
     echo json_encode([
         'success' => true,
         'data' => $alunos
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
     
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Erro ao buscar alunos: ' . $e->getMessage()
-    ]);
+        'message' => $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
 }
+?>
