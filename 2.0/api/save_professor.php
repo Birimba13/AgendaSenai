@@ -37,12 +37,13 @@ try {
     $email = trim($dados['email']);
     $turno_manha = isset($dados['turno_manha']) ? (bool)$dados['turno_manha'] : false;
     $turno_tarde = isset($dados['turno_tarde']) ? (bool)$dados['turno_tarde'] : false;
+    $turno_noite = isset($dados['turno_noite']) ? (bool)$dados['turno_noite'] : false;
     $carga_horaria = (int)$dados['carga_horaria'];
     $ativo = ($dados['status'] === 'ativo') ? 1 : 0;
     $professor_id = isset($dados['id']) ? (int)$dados['id'] : null;
     
     // Verifica se pelo menos um turno foi selecionado
-    if (!$turno_manha && !$turno_tarde) {
+    if (!$turno_manha && !$turno_tarde && !$turno_noite) {
         throw new Exception('Selecione pelo menos um turno');
     }
     
@@ -87,14 +88,20 @@ try {
         
         // Atualiza professor
         $query = "UPDATE professores SET 
-                    turno_manha = ?, 
-                    turno_tarde = ?, 
-                    carga_horaria_total = ?, 
-                    ativo = ? 
-                  WHERE id = ?";
+            turno_manha = ?, 
+            turno_tarde = ?,
+            turno_noite = ?, 
+            carga_horaria_total = ?, 
+            ativo = ? 
+          WHERE id = ?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("iiiii", $turno_manha, $turno_tarde, $carga_horaria, $ativo, $professor_id);
-        
+        $stmt->bind_param("iiiiii", $turno_manha, $turno_tarde, $turno_noite, $carga_horaria, $ativo, $professor_id);
+        // Na inserção
+        $query = "INSERT INTO professores 
+          (usuario_id, turno_manha, turno_tarde, turno_noite, carga_horaria_total, carga_horaria_usada, ativo) 
+          VALUES (?, ?, ?, ?, ?, 0, ?)";
+        $stmt = $mysqli->prepare($query);
+        $stmt->bind_param("iiiiii", $usuario_id, $turno_manha, $turno_tarde, $turno_noite, $carga_horaria, $ativo);
         if (!$stmt->execute()) {
             throw new Exception('Erro ao atualizar professor');
         }

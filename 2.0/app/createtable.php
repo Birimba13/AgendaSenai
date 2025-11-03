@@ -22,6 +22,7 @@ $sqls = [
       usuario_id INT NOT NULL UNIQUE,
       turno_manha BOOLEAN NOT NULL DEFAULT FALSE,
       turno_tarde BOOLEAN NOT NULL DEFAULT FALSE,
+      turno_noite BOOLEAN NOT NULL DEFAULT FALSE,
       carga_horaria_total INT NOT NULL DEFAULT 0,
       carga_horaria_usada INT NOT NULL DEFAULT 0,
       ativo BOOLEAN NOT NULL DEFAULT TRUE,
@@ -66,7 +67,7 @@ $sqls = [
     "CREATE TABLE horarios (
       id INT AUTO_INCREMENT PRIMARY KEY,
       data DATE NOT NULL,
-      turno ENUM('Manhã','Tarde') NOT NULL,
+      turno ENUM('Manhã','Tarde','Noite') NOT NULL,
       bloco_inicio TIME NOT NULL,
       bloco_fim TIME NOT NULL,
       UNIQUE KEY unique_horario (data, turno, bloco_inicio)

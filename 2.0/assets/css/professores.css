@@ -172,6 +172,11 @@ tbody tr:hover {
     margin-right: 5px;
 }
 
+.badge-noite {
+    background: #d1d5db;
+    color: #1f2937;
+}
+
 .acoes {
     display: flex;
     gap: 10px;

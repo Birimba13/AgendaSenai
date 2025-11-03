@@ -35,6 +35,7 @@
                         <option value="">Todos</option>
                         <option value="manha">Manhã</option>
                         <option value="tarde">Tarde</option>
+                        <option value="noite">Noite</option>
                     </select>
                 </div>
                 <div class="campo-filtro">
@@ -90,6 +91,9 @@
                         </label>
                         <label>
                             <input type="checkbox" id="turnoTarde"> Tarde
+                        </label>
+                        <label>
+                            <input type="checkbox" id="turnoNoite"> Noite
                         </label>
                     </div>
                 </div>

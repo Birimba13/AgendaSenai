@@ -83,6 +83,8 @@ function filtrarTabela() {
             matchTurno = prof.turno_manha;
         } else if (turno === 'tarde') {
             matchTurno = prof.turno_tarde;
+        } else if (turno === 'noite') {
+            matchTurno = prof.turno_noite;
         }
         
         // Filtro de status
@@ -132,6 +134,7 @@ function editarProfessor(id) {
     document.getElementById('email').value = professor.email;
     document.getElementById('turnoManha').checked = professor.turno_manha;
     document.getElementById('turnoTarde').checked = professor.turno_tarde;
+    document.getElementById('turnoNoite').checked = professor.turno_noite;
     document.getElementById('cargaHoraria').value = professor.carga_horaria_total;
     document.getElementById('status').value = professor.ativo ? 'ativo' : 'inativo';
 }
@@ -182,6 +185,7 @@ document.getElementById('formProfessor').addEventListener('submit', async functi
         email: document.getElementById('email').value.trim(),
         turno_manha: document.getElementById('turnoManha').checked,
         turno_tarde: document.getElementById('turnoTarde').checked,
+        turno_noite: document.getElementById('turnoNoite').checked,
         carga_horaria: document.getElementById('cargaHoraria').value,
         status: document.getElementById('status').value
     };
@@ -202,7 +206,7 @@ document.getElementById('formProfessor').addEventListener('submit', async functi
         return;
     }
     
-    if (!dados.turno_manha && !dados.turno_tarde) {
+    if (!dados.turno_manha && !dados.turno_tarde && !dados.turno_noite) {
         alert('Selecione pelo menos um turno!');
         return;
     }
