@@ -20,6 +20,10 @@ try {
         throw new Exception('Nome é obrigatório');
     }
     
+    if (empty($dados['professor_id'])) {
+        throw new Exception('Professor é obrigatório');
+    }
+    
     if (empty($dados['data_inicio'])) {
         throw new Exception('Data de início é obrigatória');
     }
@@ -29,6 +33,7 @@ try {
     }
     
     $nome = trim($dados['nome']);
+    $professor_id = (int)$dados['professor_id'];
     $data_inicio = $dados['data_inicio'];
     $data_fim = $dados['data_fim'];
     $disciplinas = isset($dados['disciplinas']) ? $dados['disciplinas'] : [];
@@ -37,6 +42,17 @@ try {
     // Valida se data fim é maior que data início
     if (strtotime($data_fim) <= strtotime($data_inicio)) {
         throw new Exception('Data de fim deve ser maior que data de início');
+    }
+    
+    // Verifica se o professor existe
+    $query = "SELECT id FROM professores WHERE id = ?";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("i", $professor_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        throw new Exception('Professor não encontrado');
     }
     
     $mysqli->begin_transaction();
@@ -58,11 +74,12 @@ try {
         // Atualiza turma
         $query = "UPDATE cursos SET 
                           nome = ?, 
+                          professor_id = ?,
                           data_inicio = ?, 
                           data_fim = ? 
                         WHERE id = ?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("sssi", $nome, $data_inicio, $data_fim, $turma_id);
+        $stmt->bind_param("sissi", $nome, $professor_id, $data_inicio, $data_fim, $turma_id);
         
         if (!$stmt->execute()) {
             throw new Exception('Erro ao atualizar turma');
@@ -80,7 +97,6 @@ try {
             $stmt = $mysqli->prepare($query);
             
             foreach ($disciplinas as $disciplina_id) {
-                // CORREÇÃO: Garante que o ID da disciplina é um inteiro (necessário para bind_param "ii")
                 $disciplina_id_int = (int)$disciplina_id; 
                 $stmt->bind_param("ii", $turma_id, $disciplina_id_int);
                 $stmt->execute();
@@ -110,9 +126,9 @@ try {
         }
         
         // Insere turma
-        $query = "INSERT INTO cursos (nome, data_inicio, data_fim) VALUES (?, ?, ?)";
+        $query = "INSERT INTO cursos (nome, professor_id, data_inicio, data_fim) VALUES (?, ?, ?, ?)";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("sss", $nome, $data_inicio, $data_fim);
+        $stmt->bind_param("siss", $nome, $professor_id, $data_inicio, $data_fim);
         
         if (!$stmt->execute()) {
             throw new Exception('Erro ao criar turma');
@@ -126,7 +142,6 @@ try {
             $stmt = $mysqli->prepare($query);
             
             foreach ($disciplinas as $disciplina_id) {
-                // CORREÇÃO: Garante que o ID da disciplina é um inteiro (necessário para bind_param "ii")
                 $disciplina_id_int = (int)$disciplina_id;
                 $stmt->bind_param("ii", $turma_id, $disciplina_id_int);
                 $stmt->execute();

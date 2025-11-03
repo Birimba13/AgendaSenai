@@ -8,16 +8,17 @@ try {
     $query = "SELECT 
                 c.id,
                 c.nome,
+                c.professor_id,
                 c.data_inicio,
                 c.data_fim,
-                -- 1. CONTAGEM para o card
+                u.nome AS professor_nome,
                 COUNT(cd.disciplina_id) AS total_disciplinas,
-                -- 2. CRUCIAL: IDs concatenados para filtro e edição no JavaScript
                 GROUP_CONCAT(cd.disciplina_id) AS disciplinas_ids
               FROM cursos c
+              INNER JOIN professores p ON c.professor_id = p.id
+              INNER JOIN usuarios u ON p.usuario_id = u.id
               LEFT JOIN curso_disciplinas cd ON c.id = cd.curso_id
-              -- Garante que todas as turmas apareçam, mesmo sem disciplinas
-              GROUP BY c.id, c.nome, c.data_inicio, c.data_fim
+              GROUP BY c.id, c.nome, c.professor_id, c.data_inicio, c.data_fim, u.nome
               ORDER BY c.data_inicio DESC, c.nome";
     
     $result = $mysqli->query($query);
@@ -40,6 +41,8 @@ try {
         $turmas[] = [
             'id' => (int)$row['id'],
             'nome' => $row['nome'],
+            'professor_id' => (int)$row['professor_id'],
+            'professor_nome' => $row['professor_nome'],
             'data_inicio' => $row['data_inicio'],
             'data_fim' => $row['data_fim'],
             'total_disciplinas' => (int)$row['total_disciplinas'],

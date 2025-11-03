@@ -63,6 +63,12 @@
                     <label>Nome da Turma *</label>
                     <input type="text" id="nomeTurma" placeholder="Ex: TI-2024-M" required>
                 </div>
+                <div class="form-group">
+                    <label>Professor Responsável *</label>
+                    <select id="professorId" required>
+                        <option value="">Selecione um professor</option>
+                    </select>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Data Início *</label>

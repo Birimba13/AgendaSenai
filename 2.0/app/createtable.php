@@ -48,8 +48,10 @@ $sqls = [
     "CREATE TABLE cursos (
       id INT AUTO_INCREMENT PRIMARY KEY,
       nome VARCHAR(100) NOT NULL,
+      professor_id INT NOT NULL,
       data_inicio DATE,
-      data_fim DATE
+      data_fim DATE,
+      FOREIGN KEY (professor_id) REFERENCES professores(id) ON DELETE RESTRICT
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
     "CREATE TABLE curso_disciplinas (
