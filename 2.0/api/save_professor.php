@@ -35,9 +35,9 @@ try {
     
     $nome = trim($dados['nome']);
     $email = trim($dados['email']);
-    $turno_manha = isset($dados['turno_manha']) ? (bool)$dados['turno_manha'] : false;
-    $turno_tarde = isset($dados['turno_tarde']) ? (bool)$dados['turno_tarde'] : false;
-    $turno_noite = isset($dados['turno_noite']) ? (bool)$dados['turno_noite'] : false;
+    $turno_manha = isset($dados['turno_manha']) ? (int)$dados['turno_manha'] : 0;
+    $turno_tarde = isset($dados['turno_tarde']) ? (int)$dados['turno_tarde'] : 0;
+    $turno_noite = isset($dados['turno_noite']) ? (int)$dados['turno_noite'] : 0;
     $carga_horaria = (int)$dados['carga_horaria'];
     $ativo = ($dados['status'] === 'ativo') ? 1 : 0;
     $professor_id = isset($dados['id']) ? (int)$dados['id'] : null;
@@ -50,7 +50,7 @@ try {
     $mysqli->begin_transaction();
     
     if ($professor_id) {
-        // ATUALIZAR professor existente
+        // ============== ATUALIZAR professor existente ==============
         
         // Busca o usuario_id do professor
         $query = "SELECT usuario_id FROM professores WHERE id = ?";
@@ -86,7 +86,7 @@ try {
             throw new Exception('Erro ao atualizar usuário');
         }
         
-        // Atualiza professor
+        // Atualiza professor com os 3 turnos
         $query = "UPDATE professores SET 
             turno_manha = ?, 
             turno_tarde = ?,
@@ -96,12 +96,7 @@ try {
           WHERE id = ?";
         $stmt = $mysqli->prepare($query);
         $stmt->bind_param("iiiiii", $turno_manha, $turno_tarde, $turno_noite, $carga_horaria, $ativo, $professor_id);
-        // Na inserção
-        $query = "INSERT INTO professores 
-          (usuario_id, turno_manha, turno_tarde, turno_noite, carga_horaria_total, carga_horaria_usada, ativo) 
-          VALUES (?, ?, ?, ?, ?, 0, ?)";
-        $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("iiiiii", $usuario_id, $turno_manha, $turno_tarde, $turno_noite, $carga_horaria, $ativo);
+        
         if (!$stmt->execute()) {
             throw new Exception('Erro ao atualizar professor');
         }
@@ -115,7 +110,7 @@ try {
         ]);
         
     } else {
-        // CRIAR novo professor
+        // ============== CRIAR novo professor ==============
         
         // Verifica se o email já existe
         $query = "SELECT id FROM usuarios WHERE email = ?";
@@ -143,12 +138,12 @@ try {
         
         $usuario_id = $mysqli->insert_id;
         
-        // Insere professor
+        // Insere professor com os 3 turnos
         $query = "INSERT INTO professores 
-                  (usuario_id, turno_manha, turno_tarde, carga_horaria_total, carga_horaria_usada, ativo) 
-                  VALUES (?, ?, ?, ?, 0, ?)";
+                  (usuario_id, turno_manha, turno_tarde, turno_noite, carga_horaria_total, carga_horaria_usada, ativo) 
+                  VALUES (?, ?, ?, ?, ?, 0, ?)";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("iiiii", $usuario_id, $turno_manha, $turno_tarde, $carga_horaria, $ativo);
+        $stmt->bind_param("iiiiii", $usuario_id, $turno_manha, $turno_tarde, $turno_noite, $carga_horaria, $ativo);
         
         if (!$stmt->execute()) {
             throw new Exception('Erro ao criar professor');

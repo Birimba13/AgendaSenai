@@ -183,9 +183,9 @@ document.getElementById('formProfessor').addEventListener('submit', async functi
     const dados = {
         nome: document.getElementById('nome').value.trim(),
         email: document.getElementById('email').value.trim(),
-        turno_manha: document.getElementById('turnoManha').checked,
-        turno_tarde: document.getElementById('turnoTarde').checked,
-        turno_noite: document.getElementById('turnoNoite').checked,
+        turno_manha: document.getElementById('turnoManha').checked ? 1 : 0,
+        turno_tarde: document.getElementById('turnoTarde').checked ? 1 : 0,
+        turno_noite: document.getElementById('turnoNoite').checked ? 1 : 0,
         carga_horaria: document.getElementById('cargaHoraria').value,
         status: document.getElementById('status').value
     };
