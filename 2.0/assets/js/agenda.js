@@ -6,6 +6,7 @@ let feriados = [];
 let professores = [];
 let turmas = [];
 let disciplinas = [];
+let salas = [];
 let selectedAgendamento = null;
 
 // Inicialização
@@ -125,6 +126,17 @@ async function loadSelectData() {
         const selectDisc = document.getElementById('disciplinaId');
         disciplinas.forEach(disc => {
             selectDisc.innerHTML += `<option value="${disc.id}">${disc.nome} (${disc.sigla})</option>`;
+        });
+
+        // Carregar salas
+        const salaRes = await fetch('../api/get_salas_select.php');
+        const salaData = await salaRes.json();
+        salas = salaData.data || [];
+
+        const selectSala = document.getElementById('salaId');
+        salas.forEach(sala => {
+            const info = sala.codigo ? `${sala.codigo} - ${sala.nome}` : sala.nome;
+            selectSala.innerHTML += `<option value="${sala.codigo}">${info}</option>`;
         });
 
     } catch (error) {
@@ -334,7 +346,16 @@ function createAgendaCard(agenda) {
     card.className = `agenda-card ${agenda.status} ${agenda.tipo}`;
 
     const duracao = calculateDuration(agenda.hora_inicio, agenda.hora_fim);
-    card.style.height = `${duracao * 60}px`; // 60px por hora
+
+    // Cada linha de horário tem 60px, então a altura é duração * 60px
+    // Mas precisa ocupar múltiplas células, então ajustamos para cobrir exatamente o espaço
+    const alturaEmPixels = duracao * 60;
+    card.style.height = `${alturaEmPixels}px`;
+    card.style.minHeight = `${alturaEmPixels}px`;
+
+    // Posicionar o card de forma absoluta para sobrepor múltiplas células
+    card.style.position = 'relative';
+    card.style.zIndex = '10';
 
     card.innerHTML = `
         <div class="agenda-time">${agenda.hora_inicio} - ${agenda.hora_fim}</div>
@@ -490,7 +511,7 @@ async function saveAgendamento(e) {
         professor_id: document.getElementById('professorId').value,
         turma_id: document.getElementById('turmaId').value,
         disciplina_id: document.getElementById('disciplinaId').value,
-        sala: document.getElementById('sala').value,
+        sala: document.getElementById('salaId').value,
         data: document.getElementById('data').value,
         dia_semana: document.getElementById('diaSemana').value,
         hora_inicio: document.getElementById('horaInicio').value,
@@ -581,7 +602,7 @@ function editAgendamento(agenda) {
     document.getElementById('professorId').value = agenda.professor_id;
     document.getElementById('turmaId').value = agenda.turma_id;
     document.getElementById('disciplinaId').value = agenda.disciplina_id;
-    document.getElementById('sala').value = agenda.sala;
+    document.getElementById('salaId').value = agenda.sala;
     document.getElementById('data').value = agenda.data;
     document.getElementById('diaSemana').value = agenda.dia_semana;
     document.getElementById('horaInicio').value = agenda.hora_inicio;
