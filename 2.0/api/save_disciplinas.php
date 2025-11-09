@@ -28,11 +28,18 @@ try {
         throw new Exception('Carga horária inválida');
     }
     
+    if (empty($dados['curso_id'])) {
+        throw new Exception('Curso é obrigatório');
+    }
+
     $nome = trim($dados['nome']);
     $sigla = trim(strtoupper($dados['sigla']));
     $carga_horaria = (int)$dados['carga_horaria'];
+    $curso_id = (int)$dados['curso_id'];
+    $descricao = isset($dados['descricao']) ? trim($dados['descricao']) : null;
+    $ativo = isset($dados['ativo']) ? (int)$dados['ativo'] : 1;
     $disciplina_id = isset($dados['id']) ? (int)$dados['id'] : null;
-    
+
     $mysqli->begin_transaction();
     
     if ($disciplina_id) {
@@ -50,13 +57,16 @@ try {
         }
         
         // Atualiza disciplina
-        $query = "UPDATE disciplinas SET 
-                    nome = ?, 
-                    sigla = ?, 
-                    carga_horaria = ? 
+        $query = "UPDATE disciplinas SET
+                    nome = ?,
+                    sigla = ?,
+                    carga_horaria = ?,
+                    curso_id = ?,
+                    descricao = ?,
+                    ativo = ?
                   WHERE id = ?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("ssii", $nome, $sigla, $carga_horaria, $disciplina_id);
+        $stmt->bind_param("ssiisii", $nome, $sigla, $carga_horaria, $curso_id, $descricao, $ativo, $disciplina_id);
         
         if (!$stmt->execute()) {
             throw new Exception('Erro ao atualizar disciplina');
@@ -85,9 +95,10 @@ try {
         }
         
         // Insere disciplina
-        $query = "INSERT INTO disciplinas (nome, sigla, carga_horaria) VALUES (?, ?, ?)";
+        $query = "INSERT INTO disciplinas (nome, sigla, carga_horaria, curso_id, descricao, ativo)
+                  VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("ssi", $nome, $sigla, $carga_horaria);
+        $stmt->bind_param("ssiisi", $nome, $sigla, $carga_horaria, $curso_id, $descricao, $ativo);
         
         if (!$stmt->execute()) {
             throw new Exception('Erro ao criar disciplina');

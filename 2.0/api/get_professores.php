@@ -6,15 +6,17 @@ require_once '../app/conexao.php';
 
 try {
     // Query para buscar professores com suas informações
-    $query = "SELECT 
+    $query = "SELECT
             p.id,
             u.nome,
             u.email,
             p.turno_manha,
             p.turno_tarde,
             p.turno_noite,
-            p.carga_horaria_total,
+            p.carga_horaria_semanal,
             p.carga_horaria_usada,
+            p.local_lotacao,
+            p.celular,
             p.ativo
           FROM professores p
           INNER JOIN usuarios u ON p.usuario_id = u.id
@@ -45,8 +47,10 @@ try {
             'turno_manha' => (bool)$row['turno_manha'],
             'turno_tarde' => (bool)$row['turno_tarde'],
             'turno_noite' => (bool)$row['turno_noite'],
-            'carga_horaria_total' => (int)$row['carga_horaria_total'],
+            'carga_horaria_semanal' => (int)$row['carga_horaria_semanal'],
             'carga_horaria_usada' => (int)$row['carga_horaria_usada'],
+            'local_lotacao' => $row['local_lotacao'],
+            'celular' => $row['celular'],
             'ativo' => (bool)$row['ativo']
         ];
         

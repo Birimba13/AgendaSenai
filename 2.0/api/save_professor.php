@@ -39,6 +39,8 @@ try {
     $turno_tarde = isset($dados['turno_tarde']) ? (int)$dados['turno_tarde'] : 0;
     $turno_noite = isset($dados['turno_noite']) ? (int)$dados['turno_noite'] : 0;
     $carga_horaria = (int)$dados['carga_horaria'];
+    $local_lotacao = isset($dados['local_lotacao']) ? trim($dados['local_lotacao']) : 'Afonso Pena';
+    $celular = isset($dados['celular']) ? trim($dados['celular']) : null;
     $ativo = ($dados['status'] === 'ativo') ? 1 : 0;
     $professor_id = isset($dados['id']) ? (int)$dados['id'] : null;
     
@@ -87,15 +89,17 @@ try {
         }
         
         // Atualiza professor com os 3 turnos
-        $query = "UPDATE professores SET 
-            turno_manha = ?, 
+        $query = "UPDATE professores SET
+            turno_manha = ?,
             turno_tarde = ?,
-            turno_noite = ?, 
-            carga_horaria_total = ?, 
-            ativo = ? 
+            turno_noite = ?,
+            carga_horaria_semanal = ?,
+            local_lotacao = ?,
+            celular = ?,
+            ativo = ?
           WHERE id = ?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("iiiiii", $turno_manha, $turno_tarde, $turno_noite, $carga_horaria, $ativo, $professor_id);
+        $stmt->bind_param("iiiissii", $turno_manha, $turno_tarde, $turno_noite, $carga_horaria, $local_lotacao, $celular, $ativo, $professor_id);
         
         if (!$stmt->execute()) {
             throw new Exception('Erro ao atualizar professor');
@@ -139,11 +143,11 @@ try {
         $usuario_id = $mysqli->insert_id;
         
         // Insere professor com os 3 turnos
-        $query = "INSERT INTO professores 
-                  (usuario_id, turno_manha, turno_tarde, turno_noite, carga_horaria_total, carga_horaria_usada, ativo) 
-                  VALUES (?, ?, ?, ?, ?, 0, ?)";
+        $query = "INSERT INTO professores
+                  (usuario_id, turno_manha, turno_tarde, turno_noite, carga_horaria_semanal, carga_horaria_usada, local_lotacao, celular, ativo)
+                  VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("iiiiii", $usuario_id, $turno_manha, $turno_tarde, $turno_noite, $carga_horaria, $ativo);
+        $stmt->bind_param("iiiisssi", $usuario_id, $turno_manha, $turno_tarde, $turno_noite, $carga_horaria, $local_lotacao, $celular, $ativo);
         
         if (!$stmt->execute()) {
             throw new Exception('Erro ao criar professor');

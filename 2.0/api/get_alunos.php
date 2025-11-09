@@ -14,19 +14,24 @@ try {
         throw new Exception('Erro na conexão com o banco de dados');
     }
     
-    $query = "SELECT 
+    $query = "SELECT
                 a.id,
                 a.nome,
+                a.matricula,
                 a.email,
                 a.cpf,
                 a.telefone,
                 a.data_nascimento,
                 a.data_matricula,
                 a.status,
+                a.observacoes,
                 c.nome as curso_nome,
-                c.id as curso_id
+                c.id as curso_id,
+                t.nome as turma_nome,
+                t.id as turma_id
               FROM alunos a
               LEFT JOIN cursos c ON a.curso_id = c.id
+              LEFT JOIN turmas t ON a.turma_id = t.id
               ORDER BY a.nome";
     
     $result = $mysqli->query($query);
@@ -41,14 +46,18 @@ try {
         $alunos[] = [
             'id' => (int)$row['id'],
             'nome' => $row['nome'],
+            'matricula' => $row['matricula'],
             'email' => $row['email'],
             'cpf' => $row['cpf'],
             'telefone' => $row['telefone'],
             'data_nascimento' => $row['data_nascimento'],
             'data_matricula' => $row['data_matricula'],
             'status' => $row['status'],
+            'observacoes' => $row['observacoes'],
             'curso_id' => $row['curso_id'] ? (int)$row['curso_id'] : null,
-            'curso_nome' => $row['curso_nome']
+            'curso_nome' => $row['curso_nome'],
+            'turma_id' => $row['turma_id'] ? (int)$row['turma_id'] : null,
+            'turma_nome' => $row['turma_nome']
         ];
     }
     

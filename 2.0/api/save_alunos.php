@@ -33,13 +33,16 @@ try {
     }
     
     $nome = trim($dados['nome']);
+    $matricula = isset($dados['matricula']) ? trim($dados['matricula']) : null;
     $email = trim($dados['email']);
     $cpf = isset($dados['cpf']) ? trim($dados['cpf']) : null;
     $telefone = isset($dados['telefone']) ? trim($dados['telefone']) : null;
     $data_nascimento = isset($dados['data_nascimento']) ? $dados['data_nascimento'] : null;
     $curso_id = isset($dados['curso_id']) && !empty($dados['curso_id']) ? (int)$dados['curso_id'] : null;
+    $turma_id = isset($dados['turma_id']) && !empty($dados['turma_id']) ? (int)$dados['turma_id'] : null;
     $data_matricula = $dados['data_matricula'];
     $status = isset($dados['status']) ? $dados['status'] : 'ativo';
+    $observacoes = isset($dados['observacoes']) ? trim($dados['observacoes']) : null;
     $aluno_id = isset($dados['id']) ? (int)$dados['id'] : null;
     
     $mysqli->begin_transaction();
@@ -71,20 +74,36 @@ try {
             }
         }
         
+        // Verifica matrícula se fornecida
+        if ($matricula) {
+            $query = "SELECT id FROM alunos WHERE matricula = ? AND id != ?";
+            $stmt = $mysqli->prepare($query);
+            $stmt->bind_param("si", $matricula, $aluno_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+                throw new Exception('Esta matrícula já está cadastrada');
+            }
+        }
+
         // Atualiza aluno
-        $query = "UPDATE alunos SET 
-                    nome = ?, 
-                    email = ?, 
+        $query = "UPDATE alunos SET
+                    nome = ?,
+                    matricula = ?,
+                    email = ?,
                     cpf = ?,
                     telefone = ?,
                     data_nascimento = ?,
                     curso_id = ?,
+                    turma_id = ?,
                     data_matricula = ?,
-                    status = ?
+                    status = ?,
+                    observacoes = ?
                   WHERE id = ?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("ssssssssi", $nome, $email, $cpf, $telefone, $data_nascimento, 
-                          $curso_id, $data_matricula, $status, $aluno_id);
+        $stmt->bind_param("sssssssssssi", $nome, $matricula, $email, $cpf, $telefone, $data_nascimento,
+                          $curso_id, $turma_id, $data_matricula, $status, $observacoes, $aluno_id);
         
         if (!$stmt->execute()) {
             throw new Exception('Erro ao atualizar aluno');
@@ -125,13 +144,26 @@ try {
             }
         }
         
+        // Verifica matrícula se fornecida
+        if ($matricula) {
+            $query = "SELECT id FROM alunos WHERE matricula = ?";
+            $stmt = $mysqli->prepare($query);
+            $stmt->bind_param("s", $matricula);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+                throw new Exception('Esta matrícula já está cadastrada');
+            }
+        }
+
         // Insere aluno
-        $query = "INSERT INTO alunos 
-                  (nome, email, cpf, telefone, data_nascimento, curso_id, data_matricula, status) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO alunos
+                  (nome, matricula, email, cpf, telefone, data_nascimento, curso_id, turma_id, data_matricula, status, observacoes)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("ssssssss", $nome, $email, $cpf, $telefone, $data_nascimento,
-                          $curso_id, $data_matricula, $status);
+        $stmt->bind_param("sssssssssss", $nome, $matricula, $email, $cpf, $telefone, $data_nascimento,
+                          $curso_id, $turma_id, $data_matricula, $status, $observacoes);
         
         if (!$stmt->execute()) {
             throw new Exception('Erro ao criar aluno');
