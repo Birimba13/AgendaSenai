@@ -241,6 +241,7 @@
     border-right: 1px solid #e0e0e0;
     position: relative;
     transition: background 0.2s ease;
+    overflow: visible; /* Permitir que cards se estendam para fora */
 }
 
 .day-cell:last-child {
@@ -265,6 +266,10 @@
     transition: all 0.2s ease;
     min-height: 55px;
     overflow: hidden;
+    position: absolute; /* Posicionamento absoluto para sobrepor células */
+    width: calc(100% - 10px); /* Largura total da célula menos margens */
+    left: 0; /* Alinhamento */
+    top: 0; /* Alinhamento */
 }
 
 .agenda-card:hover {

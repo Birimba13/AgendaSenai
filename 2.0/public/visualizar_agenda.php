@@ -151,8 +151,10 @@ protect();
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="sala">Sala *</label>
-                        <input type="text" id="sala" required>
+                        <label for="salaId">Sala *</label>
+                        <select id="salaId" required>
+                            <option value="">Selecione...</option>
+                        </select>
                     </div>
                 </div>
 

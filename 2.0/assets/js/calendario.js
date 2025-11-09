@@ -22,7 +22,7 @@ function popularFiltroAno() {
 
 // Função para carregar eventos do banco
 async function carregarEventos() {
-    const tbody = document.querySelector('#tabelaEventos tbody');
+    const tbody = document.querySelector('#tabelaCalendario tbody');
 
     try {
         // Mostra loading
@@ -46,7 +46,7 @@ async function carregarEventos() {
 
 // Função para renderizar eventos na tabela
 function renderizarEventos(listaEventos) {
-    const tbody = document.querySelector('#tabelaEventos tbody');
+    const tbody = document.querySelector('#tabelaCalendario tbody');
 
     if (listaEventos.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;">Nenhum evento encontrado.</td></tr>';
