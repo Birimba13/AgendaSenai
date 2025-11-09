@@ -53,9 +53,22 @@ $usuario = $resultado->fetch_assoc();
                     <p>Gerenciar turmas e aulas dos cursos</p>
                     <span class="badge">Admin</span>
                 </div>
+
                 <div class="menu-card admin-only" onclick="navigate('alunos.php')">
                     <h3>Alunos</h3>
                     <p>Gerenciar alunos já matriculados no SENAI</p>
+                    <span class="badge">Admin</span>
+                </div>
+
+                <div class="menu-card admin-only" onclick="navigate('cursos.php')">
+                    <h3>Cursos</h3>
+                    <p>Gerenciar cursos técnicos e de qualificação profissional</p>
+                    <span class="badge">Admin</span>
+                </div>
+
+                <div class="menu-card admin-only" onclick="navigate('salas.php')">
+                    <h3>Salas</h3>
+                    <p>Cadastrar e gerenciar salas e seus recursos</p>
                     <span class="badge">Admin</span>
                 </div>
             </div>
@@ -70,8 +83,8 @@ $usuario = $resultado->fetch_assoc();
                 </div>
 
                 <div class="menu-card" onclick="navigate('calendario.php')">
-                    <h3>Calendário Anual</h3>
-                    <p>Visualizar e ajustar agenda anual e exceções de datas</p>
+                    <h3>Calendário Acadêmico</h3>
+                    <p>Gerenciar feriados, recessos e eventos do calendário escolar</p>
                 </div>
             </div>
         </div>
