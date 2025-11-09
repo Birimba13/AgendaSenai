@@ -14,147 +14,134 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
     $dados = json_decode(file_get_contents('php://input'), true);
-    
+
     // Validações
     if (empty($dados['nome'])) {
         throw new Exception('Nome é obrigatório');
     }
-    
-    if (empty($dados['professor_id'])) {
-        throw new Exception('Professor é obrigatório');
+
+    if (empty($dados['curso_id'])) {
+        throw new Exception('Curso é obrigatório');
     }
-    
+
+    if (empty($dados['turno'])) {
+        throw new Exception('Turno é obrigatório');
+    }
+
     if (empty($dados['data_inicio'])) {
         throw new Exception('Data de início é obrigatória');
     }
-    
+
     if (empty($dados['data_fim'])) {
         throw new Exception('Data de fim é obrigatória');
     }
-    
+
     $nome = trim($dados['nome']);
-    $professor_id = (int)$dados['professor_id'];
+    $curso_id = (int)$dados['curso_id'];
+    $periodo = isset($dados['periodo']) ? trim($dados['periodo']) : null;
+    $turno = $dados['turno'];
     $data_inicio = $dados['data_inicio'];
     $data_fim = $dados['data_fim'];
-    $disciplinas = isset($dados['disciplinas']) ? $dados['disciplinas'] : [];
+    $status = isset($dados['status']) ? $dados['status'] : 'ativo';
+    $observacoes = isset($dados['observacoes']) ? trim($dados['observacoes']) : null;
+    $ativo = isset($dados['ativo']) ? (int)$dados['ativo'] : 1;
     $turma_id = isset($dados['id']) ? (int)$dados['id'] : null;
-    
+
     // Valida se data fim é maior que data início
     if (strtotime($data_fim) <= strtotime($data_inicio)) {
         throw new Exception('Data de fim deve ser maior que data de início');
     }
-    
-    // Verifica se o professor existe
-    $query = "SELECT id FROM professores WHERE id = ?";
+
+    // Verifica se o curso existe
+    $query = "SELECT id FROM cursos WHERE id = ?";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param("i", $professor_id);
+    $stmt->bind_param("i", $curso_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows === 0) {
-        throw new Exception('Professor não encontrado');
+        throw new Exception('Curso não encontrado');
     }
-    
+
     $mysqli->begin_transaction();
-    
+
     if ($turma_id) {
         // ATUALIZAR turma existente
-        
+
         // Verifica se o nome já existe em outra turma
-        $query = "SELECT id FROM cursos WHERE nome = ? AND id != ?";
+        $query = "SELECT id FROM turmas WHERE nome = ? AND id != ?";
         $stmt = $mysqli->prepare($query);
         $stmt->bind_param("si", $nome, $turma_id);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         if ($result->num_rows > 0) {
             throw new Exception('Este nome já está cadastrado');
         }
-        
+
         // Atualiza turma
-        $query = "UPDATE cursos SET 
-                          nome = ?, 
-                          professor_id = ?,
-                          data_inicio = ?, 
-                          data_fim = ? 
+        $query = "UPDATE turmas SET
+                          nome = ?,
+                          curso_id = ?,
+                          periodo = ?,
+                          turno = ?,
+                          data_inicio = ?,
+                          data_fim = ?,
+                          status = ?,
+                          observacoes = ?,
+                          ativo = ?
                         WHERE id = ?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("sissi", $nome, $professor_id, $data_inicio, $data_fim, $turma_id);
-        
+        $stmt->bind_param("sissssssii", $nome, $curso_id, $periodo, $turno,
+                         $data_inicio, $data_fim, $status, $observacoes, $ativo, $turma_id);
+
         if (!$stmt->execute()) {
             throw new Exception('Erro ao atualizar turma');
         }
-        
-        // Remove disciplinas antigas
-        $query = "DELETE FROM curso_disciplinas WHERE curso_id = ?";
-        $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("i", $turma_id);
-        $stmt->execute();
-        
-        // Adiciona novas disciplinas
-        if (!empty($disciplinas)) {
-            $query = "INSERT INTO curso_disciplinas (curso_id, disciplina_id) VALUES (?, ?)";
-            $stmt = $mysqli->prepare($query);
-            
-            foreach ($disciplinas as $disciplina_id) {
-                $disciplina_id_int = (int)$disciplina_id; 
-                $stmt->bind_param("ii", $turma_id, $disciplina_id_int);
-                $stmt->execute();
-            }
-        }
-        
+
         $mysqli->commit();
-        
+
         echo json_encode([
             'success' => true,
             'message' => 'Turma atualizada com sucesso!',
             'id' => $turma_id
-        ]);
-        
+        ], JSON_UNESCAPED_UNICODE);
+
     } else {
         // CRIAR nova turma
-        
+
         // Verifica se o nome já existe
-        $query = "SELECT id FROM cursos WHERE nome = ?";
+        $query = "SELECT id FROM turmas WHERE nome = ?";
         $stmt = $mysqli->prepare($query);
         $stmt->bind_param("s", $nome);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         if ($result->num_rows > 0) {
             throw new Exception('Este nome já está cadastrado');
         }
-        
+
         // Insere turma
-        $query = "INSERT INTO cursos (nome, professor_id, data_inicio, data_fim) VALUES (?, ?, ?, ?)";
+        $query = "INSERT INTO turmas
+                  (nome, curso_id, periodo, turno, data_inicio, data_fim, status, observacoes, ativo)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("siss", $nome, $professor_id, $data_inicio, $data_fim);
-        
+        $stmt->bind_param("sissssssi", $nome, $curso_id, $periodo, $turno,
+                         $data_inicio, $data_fim, $status, $observacoes, $ativo);
+
         if (!$stmt->execute()) {
             throw new Exception('Erro ao criar turma');
         }
-        
+
         $turma_id = $mysqli->insert_id;
-        
-        // Adiciona disciplinas
-        if (!empty($disciplinas)) {
-            $query = "INSERT INTO curso_disciplinas (curso_id, disciplina_id) VALUES (?, ?)";
-            $stmt = $mysqli->prepare($query);
-            
-            foreach ($disciplinas as $disciplina_id) {
-                $disciplina_id_int = (int)$disciplina_id;
-                $stmt->bind_param("ii", $turma_id, $disciplina_id_int);
-                $stmt->execute();
-            }
-        }
-        
+
         $mysqli->commit();
-        
+
         echo json_encode([
             'success' => true,
             'message' => 'Turma cadastrada com sucesso!',
             'id' => $turma_id
-        ]);
+        ], JSON_UNESCAPED_UNICODE);
     }
     
 } catch (Exception $e) {

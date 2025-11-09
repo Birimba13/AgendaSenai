@@ -5,61 +5,58 @@ header('Access-Control-Allow-Origin: *');
 require_once '../app/conexao.php';
 
 try {
-    $query = "SELECT 
-                c.id,
-                c.nome,
-                c.professor_id,
-                c.data_inicio,
-                c.data_fim,
-                u.nome AS professor_nome,
-                COUNT(cd.disciplina_id) AS total_disciplinas,
-                GROUP_CONCAT(cd.disciplina_id) AS disciplinas_ids
-              FROM cursos c
-              INNER JOIN professores p ON c.professor_id = p.id
-              INNER JOIN usuarios u ON p.usuario_id = u.id
-              LEFT JOIN curso_disciplinas cd ON c.id = cd.curso_id
-              GROUP BY c.id, c.nome, c.professor_id, c.data_inicio, c.data_fim, u.nome
-              ORDER BY c.data_inicio DESC, c.nome";
-    
+    $query = "SELECT
+                t.id,
+                t.nome,
+                t.periodo,
+                t.turno,
+                t.data_inicio,
+                t.data_fim,
+                t.status,
+                t.observacoes,
+                t.ativo,
+                t.curso_id,
+                c.nome AS curso_nome,
+                c.codigo AS curso_codigo,
+                COUNT(DISTINCT a.id) AS total_alunos
+              FROM turmas t
+              INNER JOIN cursos c ON t.curso_id = c.id
+              LEFT JOIN alunos a ON t.id = a.turma_id AND a.status = 'ativo'
+              GROUP BY t.id, t.nome, t.periodo, t.turno, t.data_inicio, t.data_fim,
+                       t.status, t.observacoes, t.ativo, t.curso_id, c.nome, c.codigo
+              ORDER BY t.data_inicio DESC, t.nome";
+
     $result = $mysqli->query($query);
-    
+
     $turmas = [];
-    
+
     while ($row = $result->fetch_assoc()) {
-        // Determina o status baseado nas datas
-        $hoje = new DateTime();
-        $dataInicio = new DateTime($row['data_inicio']);
-        $dataFim = new DateTime($row['data_fim']);
-        
-        $status = 'ativo';
-        if ($hoje > $dataFim) {
-            $status = 'concluido';
-        } elseif ($hoje < $dataInicio) {
-            $status = 'aguardando';
-        }
-        
         $turmas[] = [
             'id' => (int)$row['id'],
             'nome' => $row['nome'],
-            'professor_id' => (int)$row['professor_id'],
-            'professor_nome' => $row['professor_nome'],
+            'periodo' => $row['periodo'],
+            'turno' => $row['turno'],
             'data_inicio' => $row['data_inicio'],
             'data_fim' => $row['data_fim'],
-            'total_disciplinas' => (int)$row['total_disciplinas'],
-            'disciplinas_ids' => $row['disciplinas_ids'], 
-            'status' => $status
+            'status' => $row['status'],
+            'observacoes' => $row['observacoes'],
+            'ativo' => (bool)$row['ativo'],
+            'curso_id' => (int)$row['curso_id'],
+            'curso_nome' => $row['curso_nome'],
+            'curso_codigo' => $row['curso_codigo'],
+            'total_alunos' => (int)$row['total_alunos']
         ];
     }
-    
+
     echo json_encode([
         'success' => true,
         'data' => $turmas
-    ]);
-    
+    ], JSON_UNESCAPED_UNICODE);
+
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => 'Erro ao buscar turmas: ' . $e->getMessage()
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 }

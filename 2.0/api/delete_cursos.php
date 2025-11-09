@@ -11,56 +11,52 @@ try {
     $dados = json_decode(file_get_contents('php://input'), true);
 
     if (empty($dados['id'])) {
-        throw new Exception('ID da turma é obrigatório');
+        throw new Exception('ID do curso é obrigatório');
     }
 
-    $turma_id = (int)$dados['id'];
+    $curso_id = (int)$dados['id'];
 
-    // Verifica se a turma existe
-    $query = "SELECT id FROM turmas WHERE id = ?";
+    // Verifica se o curso existe
+    $query = "SELECT id FROM cursos WHERE id = ?";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param("i", $turma_id);
+    $stmt->bind_param("i", $curso_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows === 0) {
-        throw new Exception('Turma não encontrada');
+        throw new Exception('Curso não encontrado');
     }
 
-    // Verifica se há alunos matriculados na turma
-    $query = "SELECT COUNT(*) as total FROM alunos WHERE turma_id = ?";
+    // Verifica se há turmas associadas ao curso
+    $query = "SELECT COUNT(*) as total FROM turmas WHERE curso_id = ?";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param("i", $turma_id);
+    $stmt->bind_param("i", $curso_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
 
     if ($row['total'] > 0) {
-        throw new Exception('Não é possível excluir esta turma pois existem ' . $row['total'] . ' aluno(s) matriculado(s)');
+        throw new Exception('Não é possível excluir este curso pois existem ' . $row['total'] . ' turma(s) associada(s)');
     }
 
-    // Deleta a turma (agendamentos serão deletados em cascata)
-    $query = "DELETE FROM turmas WHERE id = ?";
+    // Deleta o curso (disciplinas e curso_disciplinas serão deletadas em cascata)
+    $query = "DELETE FROM cursos WHERE id = ?";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param("i", $turma_id);
+    $stmt->bind_param("i", $curso_id);
 
     if (!$stmt->execute()) {
-        throw new Exception('Erro ao excluir turma');
+        throw new Exception('Erro ao excluir curso');
     }
 
     echo json_encode([
         'success' => true,
-        'message' => 'Turma excluída com sucesso!'
+        'message' => 'Curso excluído com sucesso!'
     ], JSON_UNESCAPED_UNICODE);
-    
+
 } catch (Exception $e) {
-    if (isset($mysqli)) {
-        $mysqli->rollback();
-    }
-    
     http_response_code(400);
     echo json_encode([
         'success' => false,
         'message' => $e->getMessage()
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 }
