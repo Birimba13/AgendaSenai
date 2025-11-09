@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alunos - Agenda Senai</title>
-    <link rel="stylesheet" href="../assets/css/alunos.css">
+    <title>Cursos - Agenda Senai</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
     <div class="header">
@@ -19,20 +19,24 @@
 
     <div class="container">
         <div class="page-header">
-            <h1 class="page-title">Gestão de Alunos</h1>
-            <button class="btn-adicionar" onclick="abrirModal()">+ Adicionar Aluno</button>
+            <h1 class="page-title">Gestão de Cursos</h1>
+            <button class="btn-adicionar" onclick="abrirModal()">+ Adicionar Curso</button>
         </div>
 
         <div class="filtros">
             <div class="filtros-grid">
                 <div class="campo-filtro">
                     <label>Buscar</label>
-                    <input type="text" id="busca" placeholder="Nome, email ou CPF..." onkeyup="filtrarTabela()">
+                    <input type="text" id="busca" placeholder="Nome ou código..." onkeyup="filtrarTabela()">
                 </div>
                 <div class="campo-filtro">
-                    <label>Turma</label>
-                    <select id="filtroTurma" onchange="filtrarTabela()">
-                        <option value="">Todas</option>
+                    <label>Nível</label>
+                    <select id="filtroNivel" onchange="filtrarTabela()">
+                        <option value="">Todos</option>
+                        <option value="tecnico">Técnico</option>
+                        <option value="qualificacao">Qualificação</option>
+                        <option value="aperfeicoamento">Aperfeiçoamento</option>
+                        <option value="aprendizagem">Aprendizagem</option>
                     </select>
                 </div>
                 <div class="campo-filtro">
@@ -41,21 +45,22 @@
                         <option value="">Todos</option>
                         <option value="ativo">Ativo</option>
                         <option value="inativo">Inativo</option>
-                        <option value="concluido">Concluído</option>
-                        <option value="trancado">Trancado</option>
                     </select>
                 </div>
             </div>
         </div>
 
         <div class="tabela-container">
-            <table id="tabelaAlunos">
+            <table id="tabelaCursos">
                 <thead>
                     <tr>
+                        <th>Código</th>
                         <th>Nome</th>
-                        <th>Matrícula</th>
-                        <th>Email</th>
-                        <th>Turma</th>
+                        <th>Nível</th>
+                        <th>Carga Horária</th>
+                        <th>Duração</th>
+                        <th>Disciplinas</th>
+                        <th>Turmas</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
@@ -70,72 +75,46 @@
     <div id="modal" class="modal">
         <div class="modal-conteudo">
             <div class="modal-header">
-                <h2 id="modalTitulo">Adicionar Aluno</h2>
+                <h2 id="modalTitulo">Adicionar Curso</h2>
                 <button class="btn-fechar" onclick="fecharModal()">×</button>
             </div>
-            <form id="formAluno">
+            <form id="formCurso">
                 <div class="form-group">
-                    <label>Nome Completo *</label>
-                    <input type="text" id="nome" required placeholder="Digite o nome completo">
+                    <label>Nome do Curso *</label>
+                    <input type="text" id="nome" required>
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Matrícula</label>
-                        <input type="text" id="matricula" placeholder="Ex: 2025001" maxlength="20">
-                        <small style="color: #666; font-size: 0.85rem;">Deixe em branco para gerar automaticamente</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Email *</label>
-                        <input type="email" id="email" required placeholder="email@exemplo.com">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>CPF</label>
-                        <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14">
-                    </div>
-                    <div class="form-group">
-                        <label>Telefone</label>
-                        <input type="text" id="telefone" placeholder="(00) 00000-0000" maxlength="15">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Data de Nascimento</label>
-                        <input type="date" id="dataNascimento">
-                    </div>
-                    <div class="form-group">
-                        <label>Data de Matrícula *</label>
-                        <input type="date" id="dataMatricula" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Turma</label>
-                        <select id="turmaId">
-                            <option value="">Sem turma</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Status *</label>
-                        <select id="status" required>
-                            <option value="ativo">Ativo</option>
-                            <option value="inativo">Inativo</option>
-                            <option value="concluido">Concluído</option>
-                            <option value="trancado">Trancado</option>
-                        </select>
-                    </div>
-                </div>
-
                 <div class="form-group">
-                    <label>Observações</label>
-                    <textarea id="observacoes" rows="3" placeholder="Observações sobre o aluno..."></textarea>
+                    <label>Código *</label>
+                    <input type="text" id="codigo" required maxlength="20" placeholder="Ex: TEC-AUTO">
                 </div>
-
+                <div class="form-group">
+                    <label>Nível *</label>
+                    <select id="nivel" required>
+                        <option value="tecnico">Técnico</option>
+                        <option value="qualificacao">Qualificação</option>
+                        <option value="aperfeicoamento">Aperfeiçoamento</option>
+                        <option value="aprendizagem">Aprendizagem</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Carga Horária Total (horas)</label>
+                    <input type="number" id="cargaHorariaTotal" min="0" placeholder="Ex: 1200">
+                </div>
+                <div class="form-group">
+                    <label>Duração (meses)</label>
+                    <input type="number" id="duracaoMeses" min="0" placeholder="Ex: 18">
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="descricao" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="ativo">
+                        <option value="1">Ativo</option>
+                        <option value="0">Inativo</option>
+                    </select>
+                </div>
                 <div class="form-actions">
                     <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
                     <button type="submit" class="btn-salvar">Salvar</button>
@@ -144,6 +123,6 @@
         </div>
     </div>
 
-    <script src="../assets/js/alunos.js"></script>
+    <script src="../assets/js/cursos.js"></script>
 </body>
 </html>

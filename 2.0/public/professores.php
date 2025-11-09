@@ -55,6 +55,7 @@
                     <tr>
                         <th>Nome</th>
                         <th>Email</th>
+                        <th>Local</th>
                         <th>Turnos</th>
                         <th>Carga Horária</th>
                         <th>Status</th>
@@ -83,6 +84,20 @@
                     <label>Email *</label>
                     <input type="email" id="email" required>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Carga Horária Semanal (horas) *</label>
+                        <input type="number" id="cargaHoraria" min="0" max="40" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Celular</label>
+                        <input type="text" id="celular" placeholder="(00) 00000-0000" maxlength="15">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Local de Lotação</label>
+                    <input type="text" id="localLotacao" placeholder="Ex: Afonso Pena" value="Afonso Pena">
+                </div>
                 <div class="form-group">
                     <label>Turnos Disponíveis</label>
                     <div class="checkbox-group">
@@ -96,10 +111,6 @@
                             <input type="checkbox" id="turnoNoite"> Noite
                         </label>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>Carga Horária Total (horas/semana) *</label>
-                    <input type="number" id="cargaHoraria" min="0" max="40" required>
                 </div>
                 <div class="form-group">
                     <label>Status</label>

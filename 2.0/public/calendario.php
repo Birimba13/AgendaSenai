@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alunos - Agenda Senai</title>
-    <link rel="stylesheet" href="../assets/css/alunos.css">
+    <title>Calendário - Agenda Senai</title>
+    <link rel="stylesheet" href="../assets/css/calendario.css">
 </head>
 <body>
     <div class="header">
@@ -19,44 +19,43 @@
 
     <div class="container">
         <div class="page-header">
-            <h1 class="page-title">Gestão de Alunos</h1>
-            <button class="btn-adicionar" onclick="abrirModal()">+ Adicionar Aluno</button>
+            <h1 class="page-title">Calendário Acadêmico</h1>
+            <button class="btn-adicionar" onclick="abrirModal()">+ Adicionar Evento</button>
         </div>
 
         <div class="filtros">
             <div class="filtros-grid">
                 <div class="campo-filtro">
                     <label>Buscar</label>
-                    <input type="text" id="busca" placeholder="Nome, email ou CPF..." onkeyup="filtrarTabela()">
+                    <input type="text" id="busca" placeholder="Descrição..." onkeyup="filtrarTabela()">
                 </div>
                 <div class="campo-filtro">
-                    <label>Turma</label>
-                    <select id="filtroTurma" onchange="filtrarTabela()">
-                        <option value="">Todas</option>
+                    <label>Tipo</label>
+                    <select id="filtroTipo" onchange="filtrarTabela()">
+                        <option value="">Todos</option>
+                        <option value="feriado">Feriado</option>
+                        <option value="recesso">Recesso</option>
+                        <option value="evento">Evento</option>
+                        <option value="suspensao">Suspensão</option>
                     </select>
                 </div>
                 <div class="campo-filtro">
-                    <label>Status</label>
-                    <select id="filtroStatus" onchange="filtrarTabela()">
+                    <label>Ano</label>
+                    <select id="filtroAno" onchange="filtrarTabela()">
                         <option value="">Todos</option>
-                        <option value="ativo">Ativo</option>
-                        <option value="inativo">Inativo</option>
-                        <option value="concluido">Concluído</option>
-                        <option value="trancado">Trancado</option>
                     </select>
                 </div>
             </div>
         </div>
 
         <div class="tabela-container">
-            <table id="tabelaAlunos">
+            <table id="tabelaCalendario">
                 <thead>
                     <tr>
-                        <th>Nome</th>
-                        <th>Matrícula</th>
-                        <th>Email</th>
-                        <th>Turma</th>
-                        <th>Status</th>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Tipo</th>
+                        <th>Dia Letivo</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -70,72 +69,42 @@
     <div id="modal" class="modal">
         <div class="modal-conteudo">
             <div class="modal-header">
-                <h2 id="modalTitulo">Adicionar Aluno</h2>
+                <h2 id="modalTitulo">Adicionar Evento</h2>
                 <button class="btn-fechar" onclick="fecharModal()">×</button>
             </div>
-            <form id="formAluno">
+            <form id="formEvento">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Data *</label>
+                        <input type="date" id="data" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo *</label>
+                        <select id="tipo" required>
+                            <option value="">Selecione</option>
+                            <option value="feriado">Feriado</option>
+                            <option value="recesso">Recesso</option>
+                            <option value="evento">Evento</option>
+                            <option value="suspensao">Suspensão de Aulas</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label>Nome Completo *</label>
-                    <input type="text" id="nome" required placeholder="Digite o nome completo">
+                    <label>Descrição *</label>
+                    <input type="text" id="descricao" required placeholder="Ex: Natal, Recesso de Julho...">
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Matrícula</label>
-                        <input type="text" id="matricula" placeholder="Ex: 2025001" maxlength="20">
-                        <small style="color: #666; font-size: 0.85rem;">Deixe em branco para gerar automaticamente</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Email *</label>
-                        <input type="email" id="email" required placeholder="email@exemplo.com">
-                    </div>
+                <div class="form-group">
+                    <label>É dia letivo?</label>
+                    <select id="diaLetivo" required>
+                        <option value="0">Não</option>
+                        <option value="1">Sim</option>
+                    </select>
+                    <small style="color: #666; font-size: 0.85rem;">Define se as aulas ocorrem neste dia</small>
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>CPF</label>
-                        <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14">
-                    </div>
-                    <div class="form-group">
-                        <label>Telefone</label>
-                        <input type="text" id="telefone" placeholder="(00) 00000-0000" maxlength="15">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Data de Nascimento</label>
-                        <input type="date" id="dataNascimento">
-                    </div>
-                    <div class="form-group">
-                        <label>Data de Matrícula *</label>
-                        <input type="date" id="dataMatricula" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Turma</label>
-                        <select id="turmaId">
-                            <option value="">Sem turma</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Status *</label>
-                        <select id="status" required>
-                            <option value="ativo">Ativo</option>
-                            <option value="inativo">Inativo</option>
-                            <option value="concluido">Concluído</option>
-                            <option value="trancado">Trancado</option>
-                        </select>
-                    </div>
-                </div>
-
                 <div class="form-group">
                     <label>Observações</label>
-                    <textarea id="observacoes" rows="3" placeholder="Observações sobre o aluno..."></textarea>
+                    <textarea id="observacoes" rows="3" placeholder="Informações adicionais..."></textarea>
                 </div>
-
                 <div class="form-actions">
                     <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
                     <button type="submit" class="btn-salvar">Salvar</button>
@@ -144,6 +113,6 @@
         </div>
     </div>
 
-    <script src="../assets/js/alunos.js"></script>
+    <script src="../assets/js/calendario.js"></script>
 </body>
 </html>
