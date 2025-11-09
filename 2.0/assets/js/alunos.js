@@ -35,20 +35,20 @@ async function carregarTurmas() {
 }
 
 function preencherSelectTurmas() {
-    const selectFiltro = document.getElementById('filtroCurso');
-    const selectForm = document.getElementById('cursoId');
-    
+    const selectFiltro = document.getElementById('filtroTurma');
+    const selectForm = document.getElementById('turmaId');
+
     if (!selectFiltro || !selectForm) {
         console.error('Elementos select não encontrados');
         return;
     }
-    
+
     // Preenche filtro
     selectFiltro.innerHTML = '<option value="">Todas</option>';
     turmas.forEach(turma => {
         selectFiltro.innerHTML += `<option value="${turma.id}">${turma.nome}</option>`;
     });
-    
+
     // Preenche formulário
     selectForm.innerHTML = '<option value="">Sem turma</option>';
     turmas.forEach(turma => {
@@ -129,15 +129,12 @@ function renderizarAlunos(listaAlunos) {
     };
     
     tbody.innerHTML = listaAlunos.map(aluno => {
-        const dataMatricula = new Date(aluno.data_matricula + 'T00:00:00').toLocaleDateString('pt-BR');
-        
         return `
         <tr>
             <td>${aluno.nome}</td>
+            <td>${aluno.matricula || '-'}</td>
             <td>${aluno.email}</td>
-            <td>${aluno.cpf || '-'}</td>
-            <td>${aluno.curso_nome || 'Sem turma'}</td>
-            <td>${dataMatricula}</td>
+            <td>${aluno.turma_nome || 'Sem turma'}</td>
             <td>
                 <span class="badge ${statusBadge[aluno.status] || 'badge'}">
                     ${statusTexto[aluno.status] || aluno.status}
@@ -158,23 +155,24 @@ function renderizarAlunos(listaAlunos) {
 
 function filtrarTabela() {
     const busca = document.getElementById('busca').value.toLowerCase();
-    const cursoId = document.getElementById('filtroCurso').value;
+    const turmaId = document.getElementById('filtroTurma').value;
     const status = document.getElementById('filtroStatus').value;
-    
+
     const alunosFiltrados = alunos.filter(aluno => {
-        const matchBusca = busca === '' || 
-            aluno.nome.toLowerCase().includes(busca) || 
+        const matchBusca = busca === '' ||
+            aluno.nome.toLowerCase().includes(busca) ||
             aluno.email.toLowerCase().includes(busca) ||
-            (aluno.cpf && aluno.cpf.includes(busca));
-        
-        const matchCurso = cursoId === '' || 
-            (aluno.curso_id && aluno.curso_id.toString() === cursoId);
-        
+            (aluno.cpf && aluno.cpf.includes(busca)) ||
+            (aluno.matricula && aluno.matricula.toLowerCase().includes(busca));
+
+        const matchTurma = turmaId === '' ||
+            (aluno.turma_id && aluno.turma_id.toString() === turmaId);
+
         const matchStatus = status === '' || aluno.status === status;
-        
-        return matchBusca && matchCurso && matchStatus;
+
+        return matchBusca && matchTurma && matchStatus;
     });
-    
+
     renderizarAlunos(alunosFiltrados);
 }
 
@@ -204,25 +202,27 @@ function fecharModal() {
 
 function editarAluno(id) {
     const aluno = alunos.find(a => a.id === id);
-    
+
     if (!aluno) {
         alert('Aluno não encontrado!');
         return;
     }
-    
+
     alunoEditando = aluno;
-    
+
     document.getElementById('modal').classList.add('active');
     document.getElementById('modalTitulo').textContent = 'Editar Aluno';
-    
+
     document.getElementById('nome').value = aluno.nome;
+    document.getElementById('matricula').value = aluno.matricula || '';
     document.getElementById('email').value = aluno.email;
     document.getElementById('cpf').value = aluno.cpf || '';
     document.getElementById('telefone').value = aluno.telefone || '';
     document.getElementById('dataNascimento').value = aluno.data_nascimento || '';
-    document.getElementById('cursoId').value = aluno.curso_id || '';
+    document.getElementById('turmaId').value = aluno.turma_id || '';
     document.getElementById('dataMatricula').value = aluno.data_matricula;
     document.getElementById('status').value = aluno.status;
+    document.getElementById('observacoes').value = aluno.observacoes || '';
 }
 
 async function excluirAluno(id) {
@@ -271,32 +271,34 @@ async function excluirAluno(id) {
 
 document.getElementById('formAluno')?.addEventListener('submit', async function (e) {
     e.preventDefault();
-    
+
     const dados = {
         nome: document.getElementById('nome').value.trim(),
+        matricula: document.getElementById('matricula').value.trim() || null,
         email: document.getElementById('email').value.trim(),
         cpf: document.getElementById('cpf').value.trim() || null,
         telefone: document.getElementById('telefone').value.trim() || null,
         data_nascimento: document.getElementById('dataNascimento').value || null,
-        curso_id: document.getElementById('cursoId').value || null,
+        turma_id: document.getElementById('turmaId').value || null,
         data_matricula: document.getElementById('dataMatricula').value,
-        status: document.getElementById('status').value
+        status: document.getElementById('status').value,
+        observacoes: document.getElementById('observacoes').value.trim() || null
     };
-    
+
     if (alunoEditando) {
         dados.id = alunoEditando.id;
     }
-    
+
     if (!dados.nome) {
         alert('Nome é obrigatório!');
         return;
     }
-    
+
     if (!dados.email) {
         alert('Email é obrigatório!');
         return;
     }
-    
+
     if (!dados.data_matricula) {
         alert('Data de matrícula é obrigatória!');
         return;

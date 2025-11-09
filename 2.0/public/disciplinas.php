@@ -29,6 +29,20 @@
                     <label>Buscar Disciplina</label>
                     <input type="text" id="busca" placeholder="Nome ou sigla..." onkeyup="filtrarDisciplinas()">
                 </div>
+                <div class="campo-filtro">
+                    <label>Filtrar por Curso</label>
+                    <select id="filtroCurso" onchange="filtrarDisciplinas()">
+                        <option value="">Todos os cursos</option>
+                    </select>
+                </div>
+                <div class="campo-filtro">
+                    <label>Status</label>
+                    <select id="filtroStatus" onchange="filtrarDisciplinas()">
+                        <option value="">Todos</option>
+                        <option value="1">Ativos</option>
+                        <option value="0">Inativos</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -46,6 +60,12 @@
             </div>
             <form id="formDisciplina">
                 <div class="form-group">
+                    <label>Curso *</label>
+                    <select id="curso" required>
+                        <option value="">Selecione um curso</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Nome da Disciplina *</label>
                     <input type="text" id="nomeDisciplina" required>
                 </div>
@@ -56,6 +76,17 @@
                 <div class="form-group">
                     <label>Carga Horária (horas) *</label>
                     <input type="number" id="cargaHoraria" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="descricao" rows="3" placeholder="Descrição da disciplina..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status *</label>
+                    <select id="ativo" required>
+                        <option value="1">Ativo</option>
+                        <option value="0">Inativo</option>
+                    </select>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>

@@ -1,21 +1,53 @@
 let disciplinas = [];
+let cursos = [];
 let disciplinaEditando = null;
 
-// Carrega disciplinas quando a página carrega
+// Carrega disciplinas e cursos quando a página carrega
 document.addEventListener('DOMContentLoaded', function() {
+    carregarCursos();
     carregarDisciplinas();
 });
+
+// Função para carregar cursos
+async function carregarCursos() {
+    try {
+        const response = await fetch('../api/get_cursos.php');
+        const result = await response.json();
+
+        if (result.success) {
+            cursos = result.data;
+            popularDropdownCursos();
+        }
+    } catch (error) {
+        console.error('Erro ao carregar cursos:', error);
+    }
+}
+
+// Função para popular dropdowns de cursos
+function popularDropdownCursos() {
+    const cursosAtivos = cursos.filter(c => c.ativo);
+
+    // Dropdown do formulário
+    const selectCurso = document.getElementById('curso');
+    selectCurso.innerHTML = '<option value="">Selecione um curso</option>' +
+        cursosAtivos.map(curso => `<option value="${curso.id}">${curso.nome}</option>`).join('');
+
+    // Dropdown do filtro
+    const filtroCurso = document.getElementById('filtroCurso');
+    filtroCurso.innerHTML = '<option value="">Todos os cursos</option>' +
+        cursos.map(curso => `<option value="${curso.id}">${curso.nome}</option>`).join('');
+}
 
 // Função para carregar disciplinas do banco
 async function carregarDisciplinas() {
     const container = document.getElementById('disciplinasContainer');
-    
+
     try {
         container.innerHTML = '<div style="text-align: center; padding: 40px;"><div style="font-size: 2rem; color: #0a2342;">⏳</div><br>Carregando disciplinas...</div>';
-        
+
         const response = await fetch('../api/get_disciplinas.php');
         const result = await response.json();
-        
+
         if (result.success && result.data.length > 0) {
             disciplinas = result.data;
             renderizarDisciplinas(disciplinas);
@@ -44,11 +76,20 @@ function renderizarDisciplinas(listaDisciplinas) {
                     <h3>${disc.nome}</h3>
                     <span class="card-sigla">${disc.sigla}</span>
                 </div>
+                <span class="badge ${disc.ativo ? 'badge-ativo' : 'badge-inativo'}">
+                    ${disc.ativo ? 'Ativo' : 'Inativo'}
+                </span>
             </div>
             <div class="card-info">
                 <div class="info-item">
+                    <strong>Curso:</strong> ${disc.curso_nome || 'N/A'}
+                </div>
+                <div class="info-item">
                     <strong>Carga Horária:</strong> ${disc.carga_horaria} horas
                 </div>
+                ${disc.descricao ? `<div class="info-item">
+                    <strong>Descrição:</strong> ${disc.descricao}
+                </div>` : ''}
             </div>
             <div class="card-acoes">
                 <button class="btn-acao btn-editar" onclick="editarDisciplina(${disc.id})">Editar</button>
@@ -61,15 +102,21 @@ function renderizarDisciplinas(listaDisciplinas) {
 // Função para filtrar disciplinas
 function filtrarDisciplinas() {
     const busca = document.getElementById('busca').value.toLowerCase();
-    
+    const cursoId = document.getElementById('filtroCurso').value;
+    const status = document.getElementById('filtroStatus').value;
+
     const disciplinasFiltradas = disciplinas.filter(disc => {
-        const matchBusca = busca === '' || 
-            disc.nome.toLowerCase().includes(busca) || 
+        const matchBusca = busca === '' ||
+            disc.nome.toLowerCase().includes(busca) ||
             disc.sigla.toLowerCase().includes(busca);
-        
-        return matchBusca;
+
+        const matchCurso = cursoId === '' || disc.curso_id == cursoId;
+
+        const matchStatus = status === '' || disc.ativo == status;
+
+        return matchBusca && matchCurso && matchStatus;
     });
-    
+
     renderizarDisciplinas(disciplinasFiltradas);
 }
 
@@ -90,20 +137,23 @@ function fecharModal() {
 // Função para editar disciplina
 function editarDisciplina(id) {
     const disciplina = disciplinas.find(d => d.id === id);
-    
+
     if (!disciplina) {
         alert('Disciplina não encontrada!');
         return;
     }
-    
+
     disciplinaEditando = disciplina;
-    
+
     document.getElementById('modal').classList.add('active');
     document.getElementById('modalTitulo').textContent = 'Editar Disciplina';
-    
-    document.getElementById('nome').value = disciplina.nome;
+
+    document.getElementById('curso').value = disciplina.curso_id || '';
+    document.getElementById('nomeDisciplina').value = disciplina.nome;
     document.getElementById('sigla').value = disciplina.sigla;
     document.getElementById('cargaHoraria').value = disciplina.carga_horaria;
+    document.getElementById('descricao').value = disciplina.descricao || '';
+    document.getElementById('ativo').value = disciplina.ativo ? '1' : '0';
 }
 
 // Função para excluir disciplina
@@ -145,33 +195,41 @@ async function excluirDisciplina(id) {
 // Função para salvar disciplina (criar ou atualizar)
 document.getElementById('formDisciplina').addEventListener('submit', async function (e) {
     e.preventDefault();
-    
+
     const dados = {
+        curso_id: parseInt(document.getElementById('curso').value),
         nome: document.getElementById('nomeDisciplina').value.trim(),
         sigla: document.getElementById('sigla').value.trim(),
-        carga_horaria: document.getElementById('cargaHoraria').value
+        carga_horaria: parseInt(document.getElementById('cargaHoraria').value),
+        descricao: document.getElementById('descricao').value.trim() || null,
+        ativo: parseInt(document.getElementById('ativo').value)
     };
-    
+
     if (disciplinaEditando) {
         dados.id = disciplinaEditando.id;
     }
-    
+
     // Validações
+    if (!dados.curso_id) {
+        alert('Curso é obrigatório!');
+        return;
+    }
+
     if (!dados.nome) {
         alert('Nome é obrigatório!');
         return;
     }
-    
+
     if (!dados.sigla) {
         alert('Sigla é obrigatória!');
         return;
     }
-    
+
     if (!dados.carga_horaria || dados.carga_horaria < 1) {
         alert('Carga horária inválida!');
         return;
     }
-    
+
     try {
         const response = await fetch('../api/save_disciplinas.php', {
             method: 'POST',
@@ -180,9 +238,9 @@ document.getElementById('formDisciplina').addEventListener('submit', async funct
             },
             body: JSON.stringify(dados)
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             alert(result.message);
             fecharModal();

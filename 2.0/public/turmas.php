@@ -30,17 +30,29 @@
                     <input type="text" id="busca" placeholder="Nome da turma..." onkeyup="filtrarTurmas()">
                 </div>
                 <div class="campo-filtro">
-                    <label>Disciplinas</label>
-                    <select id="filtroDisciplina" onchange="filtrarTurmas()">
-                        <option value="">Todas</option>
+                    <label>Curso</label>
+                    <select id="filtroCurso" onchange="filtrarTurmas()">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="campo-filtro">
+                    <label>Turno</label>
+                    <select id="filtroTurno" onchange="filtrarTurmas()">
+                        <option value="">Todos</option>
+                        <option value="Manha">Manhã</option>
+                        <option value="Tarde">Tarde</option>
+                        <option value="Noite">Noite</option>
+                        <option value="Integral">Integral</option>
                     </select>
                 </div>
                 <div class="campo-filtro">
                     <label>Status</label>
                     <select id="filtroStatus" onchange="filtrarTurmas()">
                         <option value="">Todos</option>
+                        <option value="planejamento">Planejamento</option>
                         <option value="ativo">Ativo</option>
                         <option value="concluido">Concluído</option>
+                        <option value="cancelado">Cancelado</option>
                     </select>
                 </div>
             </div>
@@ -60,14 +72,30 @@
             </div>
             <form id="formTurma">
                 <div class="form-group">
-                    <label>Nome da Turma *</label>
-                    <input type="text" id="nomeTurma" placeholder="Ex: TI-2024-M" required>
+                    <label>Curso *</label>
+                    <select id="curso" required>
+                        <option value="">Selecione um curso</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>Professor Responsável *</label>
-                    <select id="professorId" required>
-                        <option value="">Selecione um professor</option>
-                    </select>
+                    <label>Nome da Turma *</label>
+                    <input type="text" id="nomeTurma" placeholder="Ex: 3º Téc. Automação - Manhã 2025/1" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Período</label>
+                        <input type="text" id="periodo" placeholder="Ex: 2025/1" maxlength="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Turno *</label>
+                        <select id="turno" required>
+                            <option value="">Selecione</option>
+                            <option value="Manha">Manhã</option>
+                            <option value="Tarde">Tarde</option>
+                            <option value="Noite">Noite</option>
+                            <option value="Integral">Integral</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -79,12 +107,27 @@
                         <input type="date" id="dataFim" required>
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Status *</label>
+                        <select id="status" required>
+                            <option value="planejamento">Planejamento</option>
+                            <option value="ativo">Ativo</option>
+                            <option value="concluido">Concluído</option>
+                            <option value="cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ativo *</label>
+                        <select id="ativo" required>
+                            <option value="1">Sim</option>
+                            <option value="0">Não</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label>Disciplinas</label>
-                    <select id="disciplinas" multiple size="6" style="height: auto;">
-                        <!-- Será preenchido via JavaScript -->
-                    </select>
-                    <small style="color: #666; margin-top: 5px; display: block;">Segure Ctrl (Windows) ou Cmd (Mac) para selecionar múltiplas disciplinas</small>
+                    <label>Observações</label>
+                    <textarea id="observacoes" rows="3" placeholder="Observações sobre a turma..."></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>

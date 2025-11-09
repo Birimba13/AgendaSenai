@@ -1,117 +1,64 @@
 let turmas = [];
-let disciplinas = [];
-let professores = [];
+let cursos = [];
 let turmaEditando = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    carregarProfessores();
-    carregarDisciplinas();
+    carregarCursos();
     carregarTurmas();
 });
 
-// Carregar professores
-async function carregarProfessores() {
+// Carregar cursos
+async function carregarCursos() {
     try {
-        const response = await fetch('../api/get_professores.php');
+        const response = await fetch('../api/get_cursos.php');
         const result = await response.json();
-        
+
         if (result.success) {
-            professores = result.data;
-            preencherSelectProfessores();
-            preencherFiltroProfessores();
+            cursos = result.data;
+            preencherSelectCursos();
+            preencherFiltroCursos();
         }
     } catch (error) {
-        console.error('Erro ao carregar professores:', error);
+        console.error('Erro ao carregar cursos:', error);
     }
 }
 
-// Preencher select de professores no modal
-function preencherSelectProfessores() {
-    const select = document.getElementById('professorId');
-    select.innerHTML = '<option value="">Selecione um professor</option>';
-    
-    professores.forEach(prof => {
+// Preencher select de cursos no modal
+function preencherSelectCursos() {
+    const select = document.getElementById('curso');
+    select.innerHTML = '<option value="">Selecione um curso</option>';
+
+    const cursosAtivos = cursos.filter(c => c.ativo);
+    cursosAtivos.forEach(curso => {
         const option = document.createElement('option');
-        option.value = prof.id;
-        option.textContent = prof.nome;
+        option.value = curso.id;
+        option.textContent = curso.nome;
         select.appendChild(option);
     });
 }
 
-// Preencher filtro de professores
-function preencherFiltroProfessores() {
-    const select = document.getElementById('filtroProfessor');
-    if (!select) return;
-    
+// Preencher filtro de cursos
+function preencherFiltroCursos() {
+    const select = document.getElementById('filtroCurso');
     select.innerHTML = '<option value="">Todos</option>';
-    
-    professores.forEach(prof => {
-        const option = document.createElement('option');
-        option.value = prof.id;
-        option.textContent = prof.nome;
-        select.appendChild(option);
-    });
-}
 
-// Carregar disciplinas
-async function carregarDisciplinas() {
-    try {
-        const response = await fetch('../api/get_disciplinas.php');
-        const result = await response.json();
-        
-        if (result.success) {
-            disciplinas = result.data;
-            preencherSelectDisciplinas();
-            preencherFiltroDisciplinas();
-        }
-    } catch (error) {
-        console.error('Erro ao carregar disciplinas:', error);
-    }
-}
-
-// Preencher select de disciplinas no modal
-function preencherSelectDisciplinas() {
-    const select = document.getElementById('disciplinas');
-    select.innerHTML = '';
-    
-    if (disciplinas.length === 0) {
+    cursos.forEach(curso => {
         const option = document.createElement('option');
-        option.textContent = 'Nenhuma disciplina cadastrada';
-        option.disabled = true;
-        select.appendChild(option);
-        return;
-    }
-    
-    disciplinas.forEach(disc => {
-        const option = document.createElement('option');
-        option.value = disc.id;
-        option.textContent = `${disc.nome} (${disc.sigla})`;
-        select.appendChild(option);
-    });
-}
-
-// Preencher filtro de disciplinas
-function preencherFiltroDisciplinas() {
-    const select = document.getElementById('filtroDisciplina');
-    select.innerHTML = '<option value="">Todas</option>';
-    
-    disciplinas.forEach(disc => {
-        const option = document.createElement('option');
-        option.value = disc.id;
-        option.textContent = disc.nome;
+        option.value = curso.id;
+        option.textContent = curso.nome;
         select.appendChild(option);
     });
 }
 
 async function carregarTurmas() {
     const container = document.getElementById('turmasContainer');
-    
+
     try {
         container.innerHTML = '<div style="text-align: center; padding: 40px; grid-column: 1/-1;"><div style="font-size: 2rem; color: #0a2342;">⏳</div><br>Carregando turmas...</div>';
-        
+
         const response = await fetch('../api/get_turmas.php');
         const result = await response.json();
-        
+
         if (result.success && result.data.length > 0) {
             turmas = result.data;
             renderizarTurmas(turmas);
@@ -124,45 +71,78 @@ async function carregarTurmas() {
     }
 }
 
+function formatarTurno(turno) {
+    const turnos = {
+        'Manha': 'Manhã',
+        'Tarde': 'Tarde',
+        'Noite': 'Noite',
+        'Integral': 'Integral'
+    };
+    return turnos[turno] || turno;
+}
+
+function formatarStatus(status) {
+    const statuses = {
+        'planejamento': 'Planejamento',
+        'ativo': 'Ativo',
+        'concluido': 'Concluído',
+        'cancelado': 'Cancelado'
+    };
+    return statuses[status] || status;
+}
+
 function renderizarTurmas(listaTurmas) {
     const container = document.getElementById('turmasContainer');
-    
+
     if (listaTurmas.length === 0) {
         container.innerHTML = '<div style="text-align: center; padding: 60px; grid-column: 1/-1;"><h3>Nenhuma turma encontrada</h3><p>Tente ajustar os filtros</p></div>';
         return;
     }
-    
+
     container.innerHTML = listaTurmas.map(turma => {
         const dataInicio = new Date(turma.data_inicio + 'T00:00:00').toLocaleDateString('pt-BR');
         const dataFim = new Date(turma.data_fim + 'T00:00:00').toLocaleDateString('pt-BR');
-        
-        const statusBadge = {
-            'ativo': '<span class="badge badge-ativo">Ativo</span>',
-            'concluido': '<span class="badge badge-concluido">Concluído</span>',
-            'aguardando': '<span class="badge" style="background: #fff3cd; color: #856404;">Aguardando</span>'
+
+        const statusBadgeClass = {
+            'planejamento': 'badge-planejamento',
+            'ativo': 'badge-ativo',
+            'concluido': 'badge-concluido',
+            'cancelado': 'badge-inativo'
         };
-        
-        const totalDisciplinas = turma.total_disciplinas || 0;
+
+        const totalAlunos = turma.total_alunos || 0;
 
         return `
             <div class="turma-card">
                 <div class="card-header">
-                    <h3>${turma.nome}</h3>
-                    <p>Professor: ${turma.professor_nome}</p>
+                    <div>
+                        <h3>${turma.nome}</h3>
+                        <p style="color: #666; margin-top: 5px;">
+                            <strong>Curso:</strong> ${turma.curso_nome || 'N/A'}
+                        </p>
+                    </div>
+                    <span class="badge ${statusBadgeClass[turma.status] || 'badge-ativo'}">
+                        ${formatarStatus(turma.status)}
+                    </span>
                 </div>
                 <div class="card-body">
                     <div class="info-row">
+                        <span class="info-label">Turno:</span>
+                        <span class="info-value">${formatarTurno(turma.turno)}</span>
+                    </div>
+                    ${turma.periodo ? `<div class="info-row">
                         <span class="info-label">Período:</span>
+                        <span class="info-value">${turma.periodo}</span>
+                    </div>` : ''}
+                    <div class="info-row">
+                        <span class="info-label">Data:</span>
                         <span class="info-value">${dataInicio} - ${dataFim}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Disciplinas:</span>
-                        <span class="info-value">${totalDisciplinas} disciplinas</span> 
+                        <span class="info-label">Alunos:</span>
+                        <span class="info-value">${totalAlunos} matriculados</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Status:</span>
-                        ${statusBadge[turma.status] || statusBadge['ativo']}
-                    </div>
+                    ${!turma.ativo ? '<div class="info-row"><span class="badge badge-inativo">Inativa</span></div>' : ''}
                 </div>
                 <div class="card-footer">
                     <button class="btn-acao btn-editar" onclick="editarTurma(${turma.id})">Editar</button>
@@ -175,28 +155,19 @@ function renderizarTurmas(listaTurmas) {
 
 function filtrarTurmas() {
     const busca = document.getElementById('busca').value.toLowerCase();
+    const cursoId = document.getElementById('filtroCurso').value;
+    const turno = document.getElementById('filtroTurno').value;
     const status = document.getElementById('filtroStatus').value;
-    const disciplinaId = document.getElementById('filtroDisciplina').value;
-    const professorId = document.getElementById('filtroProfessor')?.value || '';
 
     const turmasFiltradas = turmas.filter(turma => {
         const matchBusca = busca === '' || turma.nome.toLowerCase().includes(busca);
+        const matchCurso = cursoId === '' || turma.curso_id == cursoId;
+        const matchTurno = turno === '' || turma.turno === turno;
         const matchStatus = status === '' || turma.status === status;
-        const matchProfessor = professorId === '' || turma.professor_id.toString() === professorId;
-        
-        let matchDisciplina = true;
-        if (disciplinaId !== '') {
-             if (turma.disciplinas_ids) {
-                const turmaDisciplinaIds = String(turma.disciplinas_ids).split(',');
-                matchDisciplina = turmaDisciplinaIds.includes(disciplinaId);
-             } else {
-                 matchDisciplina = false; 
-             }
-        }
-        
-        return matchBusca && matchStatus && matchDisciplina && matchProfessor;
+
+        return matchBusca && matchCurso && matchTurno && matchStatus;
     });
-    
+
     renderizarTurmas(turmasFiltradas);
 }
 
@@ -205,9 +176,8 @@ function abrirModal() {
     document.getElementById('modal').classList.add('active');
     document.getElementById('modalTitulo').textContent = 'Adicionar Turma';
     document.getElementById('formTurma').reset();
-    document.querySelectorAll('#disciplinas option').forEach(option => {
-        option.selected = false;
-    });
+    document.getElementById('status').value = 'ativo';
+    document.getElementById('ativo').value = '1';
 }
 
 function fecharModal() {
@@ -217,53 +187,51 @@ function fecharModal() {
 
 function editarTurma(id) {
     const turma = turmas.find(t => t.id === id);
-    
+
     if (!turma) {
         alert('Turma não encontrada!');
         return;
     }
-    
+
     turmaEditando = turma;
-    
+
     document.getElementById('modal').classList.add('active');
     document.getElementById('modalTitulo').textContent = 'Editar Turma';
-    
+
+    document.getElementById('curso').value = turma.curso_id || '';
     document.getElementById('nomeTurma').value = turma.nome;
-    document.getElementById('professorId').value = turma.professor_id;
+    document.getElementById('periodo').value = turma.periodo || '';
+    document.getElementById('turno').value = turma.turno || '';
     document.getElementById('dataInicio').value = turma.data_inicio;
     document.getElementById('dataFim').value = turma.data_fim;
-
-    const selectDisciplinas = document.getElementById('disciplinas');
-    const idsVinculados = turma.disciplinas_ids ? String(turma.disciplinas_ids).split(',') : [];
-
-    selectDisciplinas.querySelectorAll('option').forEach(option => {
-        option.selected = idsVinculados.includes(option.value);
-    });
+    document.getElementById('status').value = turma.status || 'ativo';
+    document.getElementById('ativo').value = turma.ativo ? '1' : '0';
+    document.getElementById('observacoes').value = turma.observacoes || '';
 }
 
 async function excluirTurma(id) {
     const turma = turmas.find(t => t.id === id);
-    
+
     if (!turma) {
         alert('Turma não encontrada!');
         return;
     }
-    
+
     if (!confirm(`Tem certeza que deseja excluir a turma "${turma.nome}"?\n\nEsta ação não pode ser desfeita.`)) {
         return;
     }
-    
+
     try {
         const response = await fetch('../api/delete_turmas.php', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/json',
             },
-            body: `id=${id}`
+            body: JSON.stringify({ id: id })
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             alert(result.message);
             carregarTurmas();
@@ -278,34 +246,49 @@ async function excluirTurma(id) {
 
 document.getElementById('formTurma').addEventListener('submit', async function (e) {
     e.preventDefault();
-    
-    const selectElement = document.getElementById('disciplinas');
-    const selectedDisciplinas = Array.from(selectElement.selectedOptions).map(option => option.value);
 
     const dados = {
         nome: document.getElementById('nomeTurma').value.trim(),
-        professor_id: document.getElementById('professorId').value,
+        curso_id: parseInt(document.getElementById('curso').value),
+        periodo: document.getElementById('periodo').value.trim() || null,
+        turno: document.getElementById('turno').value,
         data_inicio: document.getElementById('dataInicio').value,
         data_fim: document.getElementById('dataFim').value,
-        disciplinas: selectedDisciplinas 
+        status: document.getElementById('status').value,
+        ativo: parseInt(document.getElementById('ativo').value),
+        observacoes: document.getElementById('observacoes').value.trim() || null
     };
-    
+
     if (turmaEditando) {
         dados.id = turmaEditando.id;
     }
 
-    console.log("Enviando para a API:", dados); 
-    
-    if (!dados.nome || !dados.professor_id || !dados.data_inicio || !dados.data_fim) {
-        alert('Nome, professor, data de início e data de fim são obrigatórios!');
+    // Validações
+    if (!dados.nome) {
+        alert('Nome é obrigatório!');
         return;
     }
-    
+
+    if (!dados.curso_id) {
+        alert('Curso é obrigatório!');
+        return;
+    }
+
+    if (!dados.turno) {
+        alert('Turno é obrigatório!');
+        return;
+    }
+
+    if (!dados.data_inicio || !dados.data_fim) {
+        alert('Data de início e data de fim são obrigatórias!');
+        return;
+    }
+
     if (new Date(dados.data_fim) <= new Date(dados.data_inicio)) {
         alert('Data de fim deve ser maior que data de início!');
         return;
     }
-    
+
     try {
         const response = await fetch('../api/save_turmas.php', {
             method: 'POST',
@@ -314,9 +297,9 @@ document.getElementById('formTurma').addEventListener('submit', async function (
             },
             body: JSON.stringify(dados)
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             alert(result.message);
             fecharModal();

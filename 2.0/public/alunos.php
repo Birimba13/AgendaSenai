@@ -31,7 +31,7 @@
                 </div>
                 <div class="campo-filtro">
                     <label>Turma</label>
-                    <select id="filtroCurso" onchange="filtrarTabela()">
+                    <select id="filtroTurma" onchange="filtrarTabela()">
                         <option value="">Todas</option>
                     </select>
                 </div>
@@ -53,10 +53,9 @@
                 <thead>
                     <tr>
                         <th>Nome</th>
-                        <th>Email</th>
-                        <th>CPF</th>
-                        <th>Turma</th>
                         <th>Matrícula</th>
+                        <th>Email</th>
+                        <th>Turma</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
@@ -79,35 +78,34 @@
                     <label>Nome Completo *</label>
                     <input type="text" id="nome" required placeholder="Digite o nome completo">
                 </div>
-                
+
                 <div class="form-row">
+                    <div class="form-group">
+                        <label>Matrícula</label>
+                        <input type="text" id="matricula" placeholder="Ex: 2025001" maxlength="20">
+                        <small style="color: #666; font-size: 0.85rem;">Deixe em branco para gerar automaticamente</small>
+                    </div>
                     <div class="form-group">
                         <label>Email *</label>
                         <input type="email" id="email" required placeholder="email@exemplo.com">
                     </div>
+                </div>
+
+                <div class="form-row">
                     <div class="form-group">
                         <label>CPF</label>
                         <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14">
                     </div>
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
                         <label>Telefone</label>
                         <input type="text" id="telefone" placeholder="(00) 00000-0000" maxlength="15">
                     </div>
-                    <div class="form-group">
-                        <label>Data de Nascimento</label>
-                        <input type="date" id="dataNascimento">
-                    </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Turma</label>
-                        <select id="cursoId">
-                            <option value="">Sem turma</option>
-                        </select>
+                        <label>Data de Nascimento</label>
+                        <input type="date" id="dataNascimento">
                     </div>
                     <div class="form-group">
                         <label>Data de Matrícula *</label>
@@ -115,14 +113,27 @@
                     </div>
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Turma</label>
+                        <select id="turmaId">
+                            <option value="">Sem turma</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status *</label>
+                        <select id="status" required>
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                            <option value="concluido">Concluído</option>
+                            <option value="trancado">Trancado</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <label>Status</label>
-                    <select id="status">
-                        <option value="ativo">Ativo</option>
-                        <option value="inativo">Inativo</option>
-                        <option value="concluido">Concluído</option>
-                        <option value="trancado">Trancado</option>
-                    </select>
+                    <label>Observações</label>
+                    <textarea id="observacoes" rows="3" placeholder="Observações sobre o aluno..."></textarea>
                 </div>
 
                 <div class="form-actions">
