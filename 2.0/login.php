@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../app/conexao.php");
+include("./app/conexao.php");
 
 $mensagem = "";
 
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Agenda Senai</title>
-    <link rel="stylesheet" href="../assets/css/session.css">
+    <link rel="stylesheet" href="./assets/css/session.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
         
         <div class="link-registro">
-            <a href="../app/esqueceuasenha.php">Redefinir senha</a>
+            <a href="./app/esqueceuasenha.php">Redefinir senha</a>
             <a href="cadastro.php">Criar conta</a>
         </div>
     </div>
