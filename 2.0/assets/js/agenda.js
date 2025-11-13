@@ -42,7 +42,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('filterStatus').addEventListener('change', loadWeekView);
     document.getElementById('clearFilters').addEventListener('click', clearFilters);
 
-    document.getElementById('data').addEventListener('change', updateDiaSemana);
+    document.getElementById('data').addEventListener('change', () => {
+        updateDiaSemana();
+        reloadProfessoresDisponiveis();
+        reloadSalasDisponiveis();
+    });
+    document.getElementById('horaInicio').addEventListener('change', () => {
+        reloadProfessoresDisponiveis();
+        reloadSalasDisponiveis();
+    });
+    document.getElementById('horaFim').addEventListener('change', () => {
+        reloadProfessoresDisponiveis();
+        reloadSalasDisponiveis();
+    });
+    document.getElementById('turmaId').addEventListener('change', reloadDisciplinasPorCurso);
 });
 
 // Gerenciamento de Abas
@@ -141,6 +154,139 @@ async function loadSelectData() {
 
     } catch (error) {
         console.error('Erro ao carregar dados dos selects:', error);
+    }
+}
+
+// Recarregar professores disponíveis baseado em data e horário
+async function reloadProfessoresDisponiveis() {
+    const data = document.getElementById('data').value;
+    const horaInicio = document.getElementById('horaInicio').value;
+    const horaFim = document.getElementById('horaFim').value;
+    const agendamentoId = document.getElementById('agendamentoId').value;
+
+    if (!data || !horaInicio || !horaFim) {
+        // Se não tem os dados necessários, carregar todos os professores
+        await loadSelectData();
+        return;
+    }
+
+    try {
+        const params = new URLSearchParams({
+            data,
+            hora_inicio: horaInicio,
+            hora_fim: horaFim
+        });
+
+        if (agendamentoId) {
+            params.append('agendamento_id', agendamentoId);
+        }
+
+        const res = await fetch(`../api/get_professores_disponiveis.php?${params}`);
+        const data_res = await res.json();
+
+        if (data_res.success) {
+            const professorAtual = document.getElementById('professorId').value;
+            const selectProf = document.getElementById('professorId');
+            selectProf.innerHTML = '<option value="">Selecione...</option>';
+
+            data_res.data.forEach(prof => {
+                selectProf.innerHTML += `<option value="${prof.id}">${prof.nome}</option>`;
+            });
+
+            // Restaurar seleção anterior se ainda disponível
+            if (professorAtual) {
+                selectProf.value = professorAtual;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao carregar professores disponíveis:', error);
+    }
+}
+
+// Recarregar salas disponíveis baseado em data e horário
+async function reloadSalasDisponiveis() {
+    const data = document.getElementById('data').value;
+    const horaInicio = document.getElementById('horaInicio').value;
+    const horaFim = document.getElementById('horaFim').value;
+    const agendamentoId = document.getElementById('agendamentoId').value;
+
+    if (!data || !horaInicio || !horaFim) {
+        // Se não tem os dados necessários, carregar todas as salas
+        await loadSelectData();
+        return;
+    }
+
+    try {
+        const params = new URLSearchParams({
+            data,
+            hora_inicio: horaInicio,
+            hora_fim: horaFim
+        });
+
+        if (agendamentoId) {
+            params.append('agendamento_id', agendamentoId);
+        }
+
+        const res = await fetch(`../api/get_salas_disponiveis.php?${params}`);
+        const data_res = await res.json();
+
+        if (data_res.success) {
+            const salaAtual = document.getElementById('salaId').value;
+            const selectSala = document.getElementById('salaId');
+            selectSala.innerHTML = '<option value="">Selecione...</option>';
+
+            data_res.data.forEach(sala => {
+                const info = sala.id ? `${sala.nome}` : sala.nome;
+                selectSala.innerHTML += `<option value="${sala.nome}">${info}</option>`;
+            });
+
+            // Restaurar seleção anterior se ainda disponível
+            if (salaAtual) {
+                selectSala.value = salaAtual;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao carregar salas disponíveis:', error);
+    }
+}
+
+// Recarregar disciplinas baseado no curso da turma selecionada
+async function reloadDisciplinasPorCurso() {
+    const turmaId = document.getElementById('turmaId').value;
+
+    if (!turmaId) {
+        // Se não tem turma selecionada, carregar todas as disciplinas
+        await loadSelectData();
+        return;
+    }
+
+    // Encontrar o curso_id da turma selecionada
+    const turmaSelecionada = turmas.find(t => t.id == turmaId);
+    if (!turmaSelecionada || !turmaSelecionada.curso_id) {
+        console.error('Turma não encontrada ou sem curso_id');
+        return;
+    }
+
+    try {
+        const res = await fetch(`../api/get_disciplinas_por_curso.php?curso_id=${turmaSelecionada.curso_id}`);
+        const data = await res.json();
+
+        if (data.success) {
+            const disciplinaAtual = document.getElementById('disciplinaId').value;
+            const selectDisc = document.getElementById('disciplinaId');
+            selectDisc.innerHTML = '<option value="">Selecione...</option>';
+
+            data.data.forEach(disc => {
+                selectDisc.innerHTML += `<option value="${disc.id}">${disc.nome} (${disc.sigla})</option>`;
+            });
+
+            // Restaurar seleção anterior se ainda disponível
+            if (disciplinaAtual) {
+                selectDisc.value = disciplinaAtual;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao carregar disciplinas por curso:', error);
     }
 }
 
@@ -506,6 +652,24 @@ function updateDiaSemana() {
 async function saveAgendamento(e) {
     e.preventDefault();
 
+    const horaInicio = document.getElementById('horaInicio').value;
+    const horaFim = document.getElementById('horaFim').value;
+
+    // Validar duração máxima de 1 hora
+    const [h1, m1] = horaInicio.split(':').map(Number);
+    const [h2, m2] = horaFim.split(':').map(Number);
+    const duracaoMinutos = (h2 * 60 + m2) - (h1 * 60 + m1);
+
+    if (duracaoMinutos <= 0) {
+        alert('A hora de fim deve ser posterior à hora de início.');
+        return;
+    }
+
+    if (duracaoMinutos > 60) {
+        alert('A duração da aula não pode ser maior que 1 hora (60 minutos).');
+        return;
+    }
+
     const formData = {
         id: document.getElementById('agendamentoId').value || null,
         professor_id: document.getElementById('professorId').value,
@@ -514,8 +678,8 @@ async function saveAgendamento(e) {
         sala: document.getElementById('salaId').value,
         data: document.getElementById('data').value,
         dia_semana: document.getElementById('diaSemana').value,
-        hora_inicio: document.getElementById('horaInicio').value,
-        hora_fim: document.getElementById('horaFim').value,
+        hora_inicio: horaInicio,
+        hora_fim: horaFim,
         tipo: document.getElementById('tipo').value,
         modalidade: document.getElementById('modalidade').value,
         observacoes: document.getElementById('observacoes').value
