@@ -3,6 +3,7 @@ include "conexao.php";
 
 // Script de criação completo do banco AgendaSenai
 // Versão: 2.0 - Reestruturado em 09/11/2025
+// Incluindo dados iniciais
 
 $sqls = [
     // =====================================================
@@ -68,6 +69,13 @@ $sqls = [
         INDEX idx_nivel (nivel)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
+    // DADOS INICIAIS - CURSOS
+    "INSERT IGNORE INTO cursos (nome, codigo, nivel, carga_horaria_total, duracao_meses, descricao) VALUES
+        ('Técnico em Automação Industrial', 'TEC-AUTO', 'tecnico', 1200, 18, 'Curso técnico em Automação Industrial com foco em sistemas de controle, CLP e robótica'),
+        ('Técnico em Mecânica', 'TEC-MEC', 'tecnico', 1200, 18, 'Curso técnico em Mecânica com ênfase em processos de fabricação e manutenção'),
+        ('Técnico em Desenvolvimento de Sistemas', 'TEC-DS', 'tecnico', 1200, 18, 'Curso técnico em Desenvolvimento de Sistemas com foco em programação e banco de dados'),
+        ('Qualificação em Programação Web', 'QUAL-WEB', 'qualificacao', 400, 6, 'Qualificação profissional em Programação Web - HTML, CSS, JavaScript e PHP')",
+
     // =====================================================
     // 5. TABELA DE DISCIPLINAS
     // =====================================================
@@ -84,6 +92,31 @@ $sqls = [
         INDEX idx_sigla (sigla),
         INDEX idx_ativo (ativo)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+    // DADOS INICIAIS - DISCIPLINAS
+    "INSERT IGNORE INTO disciplinas (curso_id, nome, sigla, carga_horaria, descricao) VALUES
+        -- Curso 1: Técnico em Automação
+        (1, 'Programação Orientada a Objetos', 'POO', 80, 'Fundamentos de POO com Java e Python'),
+        (1, 'Sistemas de Controle', 'SC', 60, 'Teoria de controle e sistemas automáticos'),
+        (1, 'Redes Industriais', 'RI', 40, 'Protocolos e redes para automação industrial'),
+        (1, 'CLP - Controlador Lógico Programável', 'CLP', 80, 'Programação de CLPs Siemens e Allen-Bradley'),
+        (1, 'Robótica Industrial', 'ROB', 60, 'Fundamentos de robótica e programação de robôs'),
+        -- Curso 2: Técnico em Mecânica
+        (2, 'Desenho Técnico Mecânico', 'DTM', 60, 'Leitura e interpretação de desenhos técnicos'),
+        (2, 'Processos de Fabricação', 'PF', 80, 'Processos de usinagem, soldagem e conformação'),
+        (2, 'Manutenção Mecânica', 'MM', 60, 'Técnicas de manutenção preventiva e corretiva'),
+        (2, 'Metrologia', 'MET', 40, 'Instrumentos de medição e controle dimensional'),
+        -- Curso 3: Técnico em Desenvolvimento de Sistemas
+        (3, 'Banco de Dados', 'BD', 80, 'Modelagem e SQL com MySQL e PostgreSQL'),
+        (3, 'Desenvolvimento Web', 'DW', 80, 'HTML, CSS, JavaScript e frameworks modernos'),
+        (3, 'Programação Mobile', 'PM', 60, 'Desenvolvimento de aplicativos Android e iOS'),
+        (3, 'Engenharia de Software', 'ES', 60, 'Metodologias ágeis e boas práticas'),
+        (3, 'Programação Orientada a Objetos', 'POO', 80, 'POO com Java e padrões de projeto'),
+        -- Curso 4: Qualificação Web
+        (4, 'HTML e CSS', 'HTML', 80, 'Fundamentos de HTML5 e CSS3'),
+        (4, 'JavaScript', 'JS', 80, 'JavaScript ES6+ e DOM'),
+        (4, 'PHP e MySQL', 'PHP', 80, 'Backend com PHP e integração com MySQL'),
+        (4, 'Desenvolvimento Front-end', 'FRONT', 80, 'React ou Vue.js para interfaces modernas')",
 
     // =====================================================
     // 6. TABELA DE TURMAS
@@ -105,6 +138,15 @@ $sqls = [
         INDEX idx_status (status),
         INDEX idx_periodo (periodo)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+    // DADOS INICIAIS - TURMAS
+    "INSERT IGNORE INTO turmas (curso_id, nome, periodo, turno, data_inicio, data_fim, status) VALUES
+        (1, '3º Técnico Automação - Manhã', '2025/1', 'Manha', '2025-02-01', '2025-07-31', 'ativo'),
+        (1, '4º Técnico Automação - Tarde', '2025/1', 'Tarde', '2025-02-01', '2025-07-31', 'ativo'),
+        (2, '3º Técnico Mecânica - Noite', '2025/1', 'Noite', '2025-02-01', '2025-07-31', 'ativo'),
+        (3, '2º Técnico DS - Manhã', '2025/1', 'Manha', '2025-02-01', '2025-07-31', 'ativo'),
+        (3, '3º Técnico DS - Tarde', '2025/1', 'Tarde', '2025-02-01', '2025-07-31', 'ativo'),
+        (4, 'Qualificação Web - Noite', '2025/1', 'Noite', '2025-02-01', '2025-05-31', 'ativo')",
 
     // =====================================================
     // 7. TABELA DE ALUNOS
@@ -253,6 +295,19 @@ $sqls = [
         INDEX idx_ativo (ativo)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
+    // DADOS INICIAIS - SALAS
+    "INSERT IGNORE INTO salas (codigo, nome, capacidade, tipo, local) VALUES
+        ('LAB-INF-01', 'Laboratório de Informática 1', 30, 'laboratorio', 'Afonso Pena'),
+        ('LAB-INF-02', 'Laboratório de Informática 2', 30, 'laboratorio', 'Afonso Pena'),
+        ('LAB-INF-03', 'Laboratório de Informática 3', 25, 'laboratorio', 'Afonso Pena'),
+        ('SALA-201', 'Sala 201', 40, 'sala_aula', 'Afonso Pena'),
+        ('SALA-202', 'Sala 202', 40, 'sala_aula', 'Afonso Pena'),
+        ('SALA-203', 'Sala 203', 35, 'sala_aula', 'Afonso Pena'),
+        ('LAB-MEC-01', 'Oficina Mecânica', 25, 'oficina', 'Afonso Pena'),
+        ('LAB-AUTO-01', 'Laboratório de Automação', 20, 'laboratorio', 'Afonso Pena'),
+        ('AUD-01', 'Auditório Principal', 100, 'auditorio', 'Afonso Pena'),
+        ('SALA-REUNIAO', 'Sala de Reuniões', 15, 'sala_aula', 'Afonso Pena')",
+
     // =====================================================
     // 13. TABELA DE CALENDÁRIO (Feriados/Eventos)
     // =====================================================
@@ -267,6 +322,24 @@ $sqls = [
         INDEX idx_tipo (tipo),
         INDEX idx_dia_letivo (dia_letivo)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+    // DADOS INICIAIS - CALENDÁRIO (Feriados 2025)
+    "INSERT IGNORE INTO calendario (data, tipo, descricao, dia_letivo) VALUES
+        ('2025-01-01', 'feriado', 'Ano Novo', FALSE),
+        ('2025-02-24', 'recesso', 'Início do Carnaval', FALSE),
+        ('2025-02-25', 'recesso', 'Carnaval', FALSE),
+        ('2025-02-26', 'recesso', 'Quarta-feira de Cinzas', FALSE),
+        ('2025-04-18', 'feriado', 'Sexta-feira Santa', FALSE),
+        ('2025-04-21', 'feriado', 'Tiradentes', FALSE),
+        ('2025-05-01', 'feriado', 'Dia do Trabalho', FALSE),
+        ('2025-06-19', 'feriado', 'Corpus Christi', FALSE),
+        ('2025-09-07', 'feriado', 'Independência do Brasil', FALSE),
+        ('2025-10-12', 'feriado', 'Nossa Senhora Aparecida', FALSE),
+        ('2025-11-02', 'feriado', 'Finados', FALSE),
+        ('2025-11-15', 'feriado', 'Proclamação da República', FALSE),
+        ('2025-11-20', 'feriado', 'Consciência Negra', FALSE),
+        ('2025-12-25', 'feriado', 'Natal', FALSE),
+        ('2025-12-31', 'recesso', 'Véspera de Ano Novo', FALSE)",
 
     // =====================================================
     // 14. TABELA DE DISPONIBILIDADE DE PROFESSORES
@@ -309,17 +382,31 @@ $sqls = [
 
 // Executa cada query
 echo "<h2>Criando/Atualizando Tabelas do Banco AgendaSenai</h2>";
+echo "<h3>Incluindo dados iniciais de Cursos, Disciplinas, Turmas, Salas e Calendário</h3>";
 echo "<pre>";
+
+$sucesso = 0;
+$erros = 0;
 
 foreach ($sqls as $index => $sql) {
     $numero = $index + 1;
+
+    // Identifica se é CREATE ou INSERT
+    $tipo = (stripos($sql, 'INSERT') !== false) ? 'INSERT' : 'CREATE';
+
     if (mysqli_query($mysqli, $sql)) {
-        echo "[$numero] ✓ Tabela criada/atualizada com sucesso\n";
+        echo "[$numero] ✓ $tipo executado com sucesso\n";
+        $sucesso++;
     } else {
-        echo "[$numero] ✗ Erro: " . mysqli_error($mysqli) . "\n";
+        echo "[$numero] ✗ Erro no $tipo: " . mysqli_error($mysqli) . "\n";
+        $erros++;
     }
 }
 
+echo "\n=== RESUMO ===\n";
+echo "Total de operações: " . count($sqls) . "\n";
+echo "Sucesso: $sucesso\n";
+echo "Erros: $erros\n";
 echo "\n=== PROCESSO CONCLUÍDO ===\n";
 echo "</pre>";
 ?>
