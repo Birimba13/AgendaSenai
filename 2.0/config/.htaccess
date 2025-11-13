@@ -1,0 +1,2 @@
+# Bloquear acesso direto ao diretório config (proteger database.php)
+Deny from all
