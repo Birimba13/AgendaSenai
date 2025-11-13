@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
         
         <div class="link-registro">
-            <a href="login.php">Voltar para o login</a>
+            <a href="../login.php">Voltar para o login</a>
         </div>
     </div>
 </body>
