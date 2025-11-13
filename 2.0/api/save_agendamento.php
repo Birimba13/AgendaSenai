@@ -32,6 +32,19 @@ try {
         throw new Exception('Data, hora de início e hora de fim são obrigatórias');
     }
 
+    // Validar duração máxima de 1 hora
+    $inicio = strtotime($hora_inicio);
+    $fim = strtotime($hora_fim);
+    $duracao_minutos = ($fim - $inicio) / 60;
+
+    if ($duracao_minutos > 60) {
+        throw new Exception('A duração da aula não pode ser maior que 1 hora (60 minutos)');
+    }
+
+    if ($duracao_minutos <= 0) {
+        throw new Exception('A hora de fim deve ser posterior à hora de início');
+    }
+
     // Verificar conflitos de horário
     $conflito_query = "SELECT id FROM agendamentos
                       WHERE data = ?
