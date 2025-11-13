@@ -9,6 +9,7 @@ try {
                 t.id,
                 t.nome,
                 t.turno,
+                t.curso_id,
                 c.nome AS curso_nome
               FROM turmas t
               INNER JOIN cursos c ON t.curso_id = c.id
@@ -23,6 +24,7 @@ try {
             'id' => (int)$row['id'],
             'nome' => $row['nome'],
             'turno' => $row['turno'],
+            'curso_id' => (int)$row['curso_id'],
             'curso_nome' => $row['curso_nome']
         ];
     }
