@@ -19,7 +19,7 @@ try {
     $query_professores = "SELECT p.id, u.nome
                          FROM professores p
                          INNER JOIN usuarios u ON p.usuario_id = u.id
-                         WHERE p.status = 'ativo'";
+                         WHERE p.ativo = TRUE";
 
     $professores_result = $mysqli->query($query_professores);
 

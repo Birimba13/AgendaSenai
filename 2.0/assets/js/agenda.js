@@ -165,8 +165,7 @@ async function reloadProfessoresDisponiveis() {
     const agendamentoId = document.getElementById('agendamentoId').value;
 
     if (!data || !horaInicio || !horaFim) {
-        // Se não tem os dados necessários, carregar todos os professores
-        await loadSelectData();
+        // Se não tem os dados necessários, não fazer nada
         return;
     }
 
@@ -182,6 +181,13 @@ async function reloadProfessoresDisponiveis() {
         }
 
         const res = await fetch(`../api/get_professores_disponiveis.php?${params}`);
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Erro ao carregar professores disponíveis:', errorText);
+            return;
+        }
+
         const data_res = await res.json();
 
         if (data_res.success) {
@@ -197,6 +203,8 @@ async function reloadProfessoresDisponiveis() {
             if (professorAtual) {
                 selectProf.value = professorAtual;
             }
+        } else {
+            console.error('Erro na resposta:', data_res.message);
         }
     } catch (error) {
         console.error('Erro ao carregar professores disponíveis:', error);
@@ -211,8 +219,7 @@ async function reloadSalasDisponiveis() {
     const agendamentoId = document.getElementById('agendamentoId').value;
 
     if (!data || !horaInicio || !horaFim) {
-        // Se não tem os dados necessários, carregar todas as salas
-        await loadSelectData();
+        // Se não tem os dados necessários, não fazer nada
         return;
     }
 
@@ -228,6 +235,13 @@ async function reloadSalasDisponiveis() {
         }
 
         const res = await fetch(`../api/get_salas_disponiveis.php?${params}`);
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Erro ao carregar salas disponíveis:', errorText);
+            return;
+        }
+
         const data_res = await res.json();
 
         if (data_res.success) {
@@ -244,6 +258,8 @@ async function reloadSalasDisponiveis() {
             if (salaAtual) {
                 selectSala.value = salaAtual;
             }
+        } else {
+            console.error('Erro na resposta:', data_res.message);
         }
     } catch (error) {
         console.error('Erro ao carregar salas disponíveis:', error);
@@ -255,8 +271,7 @@ async function reloadDisciplinasPorCurso() {
     const turmaId = document.getElementById('turmaId').value;
 
     if (!turmaId) {
-        // Se não tem turma selecionada, carregar todas as disciplinas
-        await loadSelectData();
+        // Se não tem turma selecionada, não fazer nada
         return;
     }
 
@@ -269,6 +284,13 @@ async function reloadDisciplinasPorCurso() {
 
     try {
         const res = await fetch(`../api/get_disciplinas_por_curso.php?curso_id=${turmaSelecionada.curso_id}`);
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Erro ao carregar disciplinas por curso:', errorText);
+            return;
+        }
+
         const data = await res.json();
 
         if (data.success) {
@@ -284,6 +306,8 @@ async function reloadDisciplinasPorCurso() {
             if (disciplinaAtual) {
                 selectDisc.value = disciplinaAtual;
             }
+        } else {
+            console.error('Erro na resposta:', data.message);
         }
     } catch (error) {
         console.error('Erro ao carregar disciplinas por curso:', error);
@@ -626,6 +650,9 @@ function openNewAgendamentoModal(date = null, hour = null, diaSemana = null) {
     document.getElementById('formAgendamento').reset();
     document.getElementById('agendamentoId').value = '';
 
+    // Recarregar todos os selects para o estado inicial (todas as opções)
+    loadSelectData();
+
     if (date) {
         document.getElementById('data').value = date;
         document.getElementById('diaSemana').value = diaSemana;
@@ -634,6 +661,14 @@ function openNewAgendamentoModal(date = null, hour = null, diaSemana = null) {
     if (hour) {
         document.getElementById('horaInicio').value = `${String(hour).padStart(2, '0')}:00`;
         document.getElementById('horaFim').value = `${String(hour + 1).padStart(2, '0')}:00`;
+    }
+
+    // Se tiver data e horários, já carregar professores e salas disponíveis
+    if (date && hour) {
+        setTimeout(() => {
+            reloadProfessoresDisponiveis();
+            reloadSalasDisponiveis();
+        }, 100);
     }
 
     document.getElementById('modalAgendamento').style.display = 'block';
