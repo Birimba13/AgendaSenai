@@ -106,7 +106,7 @@ try {
                   WHERE id = ?";
 
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param('iiisssssssssii',
+        $stmt->bind_param('iiissssssssii',
             $professor_id, $turma_id, $disciplina_id, $sala,
             $data_agendamento, $dia_semana, $hora_inicio, $hora_fim,
             $tipo, $modalidade, $status, $observacoes, $compartilhado_com,
@@ -132,7 +132,7 @@ try {
         $criado_por = $_SESSION['usuario_id'];
 
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param('iiisssssssssii',
+        $stmt->bind_param('iiissssssssii',
             $professor_id, $turma_id, $disciplina_id, $sala,
             $data_agendamento, $dia_semana, $hora_inicio, $hora_fim,
             $tipo, $modalidade, $status, $observacoes, $compartilhado_com,
