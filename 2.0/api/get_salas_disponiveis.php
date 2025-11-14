@@ -18,7 +18,7 @@ try {
     // Buscar todas as salas
     $query_salas = "SELECT id, nome, capacidade, tipo
                     FROM salas
-                    WHERE status = 'ativa'
+                    WHERE ativo = TRUE
                     ORDER BY nome";
 
     $salas_result = $mysqli->query($query_salas);

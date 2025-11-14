@@ -16,7 +16,7 @@ try {
     $query = "SELECT d.id, d.nome, d.sigla, d.carga_horaria
               FROM disciplinas d
               WHERE d.curso_id = ?
-              AND d.status = 'ativa'
+              AND d.ativo = TRUE
               ORDER BY d.nome";
 
     $stmt = $mysqli->prepare($query);
