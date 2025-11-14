@@ -2,6 +2,11 @@
 RewriteEngine On
 RewriteBase /AgendaSenai/
 
+# Não reescrever se for arquivo ou diretório real
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
 # Redirecionar /AgendaSenai/public/ para /AgendaSenai/2.0/public/
 RewriteRule ^public/(.*)$ 2.0/public/$1 [L]
 
@@ -10,6 +15,3 @@ RewriteRule ^api/(.*)$ 2.0/api/$1 [L]
 
 # Redirecionar /AgendaSenai/assets/ para /AgendaSenai/2.0/assets/
 RewriteRule ^assets/(.*)$ 2.0/assets/$1 [L]
-
-# Redirecionar raiz para 2.0/public/login.php
-RewriteRule ^$ 2.0/public/login.php [L]
