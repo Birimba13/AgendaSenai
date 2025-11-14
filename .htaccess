@@ -1,0 +1,15 @@
+# Redirecionar requisições da raiz para 2.0/
+RewriteEngine On
+RewriteBase /AgendaSenai/
+
+# Redirecionar /AgendaSenai/public/ para /AgendaSenai/2.0/public/
+RewriteRule ^public/(.*)$ 2.0/public/$1 [L]
+
+# Redirecionar /AgendaSenai/api/ para /AgendaSenai/2.0/api/
+RewriteRule ^api/(.*)$ 2.0/api/$1 [L]
+
+# Redirecionar /AgendaSenai/assets/ para /AgendaSenai/2.0/assets/
+RewriteRule ^assets/(.*)$ 2.0/assets/$1 [L]
+
+# Redirecionar raiz para 2.0/public/login.php
+RewriteRule ^$ 2.0/public/login.php [L]
