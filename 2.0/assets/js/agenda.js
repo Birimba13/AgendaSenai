@@ -732,7 +732,21 @@ async function saveAgendamento(e) {
         const data = await res.json();
 
         if (data.success) {
-            alert(data.message);
+            // Mostrar mensagem de sucesso
+            let mensagemCompleta = data.message;
+
+            // Se houver informações de carga horária, adicionar detalhes
+            if (data.carga_horaria) {
+                const { usada, maxima, percentual } = data.carga_horaria;
+                mensagemCompleta += `\n\nCarga Horária Atual: ${usada}h / ${maxima}h (${percentual}%)`;
+            }
+
+            // Se houver alerta, mostrar em destaque
+            if (data.alerta) {
+                mensagemCompleta += `\n\n${data.alerta}`;
+            }
+
+            alert(mensagemCompleta);
             closeModal();
             loadWeekView();
         } else {
