@@ -1,9 +1,13 @@
 <?php
+session_start(); // Iniciar sessão ANTES de usar $_SESSION
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 require_once '../app/conexao.php';
 require_once '../app/protect.php';
+
+protect(); // Verificar se o usuário está autenticado
 
 try {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -132,7 +136,7 @@ try {
         $criado_por = $_SESSION['usuario_id'];
 
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param('iiissssssssii',
+        $stmt->bind_param('iiisssssssssii',
             $professor_id, $turma_id, $disciplina_id, $sala,
             $data_agendamento, $dia_semana, $hora_inicio, $hora_fim,
             $tipo, $modalidade, $status, $observacoes, $compartilhado_com,
