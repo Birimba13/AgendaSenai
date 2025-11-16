@@ -88,7 +88,15 @@ try {
 
     // Inserir ou atualizar
     if ($id) {
-        // Atualizar
+        // Atualizar - verificar se houve mudança de professor
+        $query_old = "SELECT professor_id FROM agendamentos WHERE id = ?";
+        $stmt_old = $mysqli->prepare($query_old);
+        $stmt_old->bind_param('i', $id);
+        $stmt_old->execute();
+        $old_data = $stmt_old->get_result()->fetch_assoc();
+        $old_professor_id = $old_data['professor_id'];
+
+        // Atualizar agendamento
         $query = "UPDATE agendamentos SET
                     professor_id = ?,
                     turma_id = ?,
@@ -115,6 +123,21 @@ try {
 
         $stmt->execute();
 
+        // Se mudou de professor, atualizar carga horária
+        if ($old_professor_id != $professor_id) {
+            // Remover 1 hora do professor antigo
+            $update_old = "UPDATE professores SET carga_horaria_usada = carga_horaria_usada - 1 WHERE id = ?";
+            $stmt_update_old = $mysqli->prepare($update_old);
+            $stmt_update_old->bind_param('i', $old_professor_id);
+            $stmt_update_old->execute();
+
+            // Adicionar 1 hora ao novo professor
+            $update_new = "UPDATE professores SET carga_horaria_usada = carga_horaria_usada + 1 WHERE id = ?";
+            $stmt_update_new = $mysqli->prepare($update_new);
+            $stmt_update_new->bind_param('i', $professor_id);
+            $stmt_update_new->execute();
+        }
+
         echo json_encode([
             'success' => true,
             'message' => 'Agendamento atualizado com sucesso',
@@ -122,7 +145,22 @@ try {
         ], JSON_UNESCAPED_UNICODE);
 
     } else {
-        // Inserir
+        // Inserir - verificar carga horária disponível do professor
+        $query_prof = "SELECT p.carga_horaria_semanal, p.carga_horaria_usada, u.nome
+                       FROM professores p
+                       INNER JOIN usuarios u ON p.usuario_id = u.id
+                       WHERE p.id = ?";
+        $stmt_prof = $mysqli->prepare($query_prof);
+        $stmt_prof->bind_param('i', $professor_id);
+        $stmt_prof->execute();
+        $prof_data = $stmt_prof->get_result()->fetch_assoc();
+
+        $carga_maxima = $prof_data['carga_horaria_semanal'];
+        $carga_usada = $prof_data['carga_horaria_usada'];
+        $nome_professor = $prof_data['nome'];
+        $carga_apos_aula = $carga_usada + 1;
+
+        // Inserir agendamento
         $query = "INSERT INTO agendamentos
                     (professor_id, turma_id, disciplina_id, sala, data, dia_semana,
                      hora_inicio, hora_fim, tipo, modalidade, status, observacoes,
@@ -142,10 +180,34 @@ try {
         $stmt->execute();
         $novo_id = $mysqli->insert_id;
 
+        // Atualizar carga horária do professor (+1 hora)
+        $update_carga = "UPDATE professores SET carga_horaria_usada = carga_horaria_usada + 1 WHERE id = ?";
+        $stmt_update = $mysqli->prepare($update_carga);
+        $stmt_update->bind_param('i', $professor_id);
+        $stmt_update->execute();
+
+        // Mensagem de sucesso com informações sobre carga horária
+        $mensagem = "Aula criada com sucesso! 1 hora adicionada à carga horária de {$nome_professor}.";
+
+        // Verificar se está próximo ou excedeu o limite
+        $alerta = '';
+        if ($carga_apos_aula >= $carga_maxima) {
+            $alerta = "⚠️ ATENÇÃO: Professor atingiu a carga horária máxima ({$carga_maxima}h). Carga atual: {$carga_apos_aula}h.";
+        } elseif ($carga_apos_aula >= ($carga_maxima * 0.9)) {
+            $horas_restantes = $carga_maxima - $carga_apos_aula;
+            $alerta = "⚠️ Professor próximo do limite. Restam {$horas_restantes}h de {$carga_maxima}h semanais.";
+        }
+
         echo json_encode([
             'success' => true,
-            'message' => 'Agendamento criado com sucesso',
-            'id' => $novo_id
+            'message' => $mensagem,
+            'alerta' => $alerta,
+            'id' => $novo_id,
+            'carga_horaria' => [
+                'usada' => $carga_apos_aula,
+                'maxima' => $carga_maxima,
+                'percentual' => round(($carga_apos_aula / $carga_maxima) * 100, 1)
+            ]
         ], JSON_UNESCAPED_UNICODE);
     }
 
