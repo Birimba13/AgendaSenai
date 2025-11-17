@@ -65,7 +65,7 @@ try {
                     ativo = ?
                   WHERE id = ?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("sssiiiisi", $nome, $codigo, $nivel, $carga_horaria_total,
+        $stmt->bind_param("sssiiisii", $nome, $codigo, $nivel, $carga_horaria_total,
                          $duracao_meses, $carga_horaria_semanal, $descricao, $ativo, $curso_id);
 
         if (!$stmt->execute()) {
