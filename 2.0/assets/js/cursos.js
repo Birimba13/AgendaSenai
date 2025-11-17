@@ -211,25 +211,16 @@ async function excluirCurso(id) {
 document.getElementById('formCurso').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const cargaSemanalInput = document.getElementById('cargaHorariaSemanal');
-    const cargaSemanalValue = cargaSemanalInput ? cargaSemanalInput.value : null;
-
-    console.log('DEBUG - cargaHorariaSemanal input:', cargaSemanalInput);
-    console.log('DEBUG - cargaHorariaSemanal value:', cargaSemanalValue);
-    console.log('DEBUG - cargaHorariaSemanal parsed:', parseInt(cargaSemanalValue) || 0);
-
     const dados = {
         nome: document.getElementById('nome').value,
         codigo: document.getElementById('codigo').value.toUpperCase(),
         nivel: document.getElementById('nivel').value,
         carga_horaria_total: document.getElementById('cargaHorariaTotal').value || null,
         duracao_meses: document.getElementById('duracaoMeses').value || null,
-        carga_horaria_semanal: parseInt(cargaSemanalValue) || 0,
+        carga_horaria_semanal: parseInt(document.getElementById('cargaHorariaSemanal').value) || 0,
         descricao: document.getElementById('descricao').value || null,
         ativo: parseInt(document.getElementById('ativo').value)
     };
-
-    console.log('DEBUG - Dados a serem enviados:', JSON.stringify(dados, null, 2));
 
     if (cursoEditando) {
         dados.id = cursoEditando.id;
