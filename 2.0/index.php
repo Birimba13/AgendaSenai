@@ -88,30 +88,6 @@ $usuario = $resultado->fetch_assoc();
                 </div>
             </div>
         </div>
-        <div class="section">
-            <h3 class="section-title">Notificações e Relatórios</h3>
-            <div class="menu-grid">
-                <div class="menu-card" onclick="navigate('notificacoes.php')">
-                    <h3>Notificações</h3>
-                    <p>Alertas de conflitos e envio de e-mails</p>
-                </div>
-
-                <div class="menu-card" onclick="navigate('relatorios.php')">
-                    <h3>Relatórios</h3>
-                    <p>Visualizar carga horária, distribuição e estatísticas</p>
-                </div>
-            </div>
-        </div>
-        <div class="section">
-            <h3 class="section-title">Configurações do Sistema</h3>
-            <div class="menu-grid">
-                <div class="menu-card admin-only" onclick="navigate('configuracoes.php')">
-                    <h3>Configurações</h3>
-                    <p>Ajustes do sistema, usuários e permissões</p>
-                    <span class="badge">Admin</span>
-                </div>
-            </div>
-        </div>
     </div>
     <script src="./assets/js/home.js"></script>
 </body>
