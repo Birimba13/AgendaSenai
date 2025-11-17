@@ -142,6 +142,31 @@ try {
             $stmt_update_new->execute();
         }
 
+        // Atualizar carga horária do curso (sempre, pois pode ter mudado de disciplina)
+        $query_curso = "SELECT curso_id FROM disciplinas WHERE id = ?";
+        $stmt_curso = $mysqli->prepare($query_curso);
+        $stmt_curso->bind_param('i', $disciplina_id);
+        $stmt_curso->execute();
+        $curso_data = $stmt_curso->get_result()->fetch_assoc();
+
+        if ($curso_data && $curso_data['curso_id']) {
+            $curso_id = $curso_data['curso_id'];
+
+            // Recalcular carga horária preenchida do curso
+            $update_curso = "UPDATE cursos c
+                            SET c.carga_horaria_preenchida = (
+                                SELECT COUNT(*)
+                                FROM agendamentos a
+                                INNER JOIN disciplinas d ON a.disciplina_id = d.id
+                                WHERE d.curso_id = ?
+                                AND a.status != 'cancelado'
+                            )
+                            WHERE c.id = ?";
+            $stmt_update_curso = $mysqli->prepare($update_curso);
+            $stmt_update_curso->bind_param('ii', $curso_id, $curso_id);
+            $stmt_update_curso->execute();
+        }
+
         echo json_encode([
             'success' => true,
             'message' => 'Agendamento atualizado com sucesso',
@@ -189,6 +214,31 @@ try {
         $stmt_update = $mysqli->prepare($update_carga);
         $stmt_update->bind_param('i', $professor_id);
         $stmt_update->execute();
+
+        // Atualizar carga horária do curso
+        $query_curso = "SELECT curso_id FROM disciplinas WHERE id = ?";
+        $stmt_curso = $mysqli->prepare($query_curso);
+        $stmt_curso->bind_param('i', $disciplina_id);
+        $stmt_curso->execute();
+        $curso_data = $stmt_curso->get_result()->fetch_assoc();
+
+        if ($curso_data && $curso_data['curso_id']) {
+            $curso_id = $curso_data['curso_id'];
+
+            // Recalcular carga horária preenchida do curso
+            $update_curso = "UPDATE cursos c
+                            SET c.carga_horaria_preenchida = (
+                                SELECT COUNT(*)
+                                FROM agendamentos a
+                                INNER JOIN disciplinas d ON a.disciplina_id = d.id
+                                WHERE d.curso_id = ?
+                                AND a.status != 'cancelado'
+                            )
+                            WHERE c.id = ?";
+            $stmt_update_curso = $mysqli->prepare($update_curso);
+            $stmt_update_curso->bind_param('ii', $curso_id, $curso_id);
+            $stmt_update_curso->execute();
+        }
 
         // Mensagem de sucesso com informações sobre carga horária
         $mensagem = "Aula criada com sucesso! 1 hora adicionada à carga horária de {$nome_professor}.";

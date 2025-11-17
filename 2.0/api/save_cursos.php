@@ -31,6 +31,8 @@ try {
                           ? (int)$dados['carga_horaria_total'] : null;
     $duracao_meses = isset($dados['duracao_meses']) && !empty($dados['duracao_meses'])
                     ? (int)$dados['duracao_meses'] : null;
+    $carga_horaria_semanal = isset($dados['carga_horaria_semanal']) && !empty($dados['carga_horaria_semanal'])
+                            ? (int)$dados['carga_horaria_semanal'] : 0;
     $descricao = isset($dados['descricao']) ? trim($dados['descricao']) : null;
     $ativo = isset($dados['ativo']) ? (int)$dados['ativo'] : 1;
     $curso_id = isset($dados['id']) ? (int)$dados['id'] : null;
@@ -58,12 +60,13 @@ try {
                     nivel = ?,
                     carga_horaria_total = ?,
                     duracao_meses = ?,
+                    carga_horaria_semanal = ?,
                     descricao = ?,
                     ativo = ?
                   WHERE id = ?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("sssiiiii", $nome, $codigo, $nivel, $carga_horaria_total,
-                         $duracao_meses, $descricao, $ativo, $curso_id);
+        $stmt->bind_param("sssiiiisi", $nome, $codigo, $nivel, $carga_horaria_total,
+                         $duracao_meses, $carga_horaria_semanal, $descricao, $ativo, $curso_id);
 
         if (!$stmt->execute()) {
             throw new Exception('Erro ao atualizar curso');
@@ -93,11 +96,11 @@ try {
 
         // Insere curso
         $query = "INSERT INTO cursos
-                  (nome, codigo, nivel, carga_horaria_total, duracao_meses, descricao, ativo)
-                  VALUES (?, ?, ?, ?, ?, ?, ?)";
+                  (nome, codigo, nivel, carga_horaria_total, duracao_meses, carga_horaria_semanal, carga_horaria_preenchida, descricao, ativo)
+                  VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("sssiiis", $nome, $codigo, $nivel, $carga_horaria_total,
-                         $duracao_meses, $descricao, $ativo);
+        $stmt->bind_param("sssiiisi", $nome, $codigo, $nivel, $carga_horaria_total,
+                         $duracao_meses, $carga_horaria_semanal, $descricao, $ativo);
 
         if (!$stmt->execute()) {
             throw new Exception('Erro ao criar curso');
