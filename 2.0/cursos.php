@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cursos - Agenda Senai</title>
     <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="./assets/css/cursos.css">
 </head>
 <body>
     <div class="header">
@@ -59,6 +60,7 @@
                         <th>Nível</th>
                         <th>Carga Horária</th>
                         <th>Duração</th>
+                        <th>Carga Semanal</th>
                         <th>Disciplinas</th>
                         <th>Turmas</th>
                         <th>Status</th>
@@ -103,6 +105,20 @@
                 <div class="form-group">
                     <label>Duração (meses)</label>
                     <input type="number" id="duracaoMeses" min="0" placeholder="Ex: 18">
+                </div>
+                <div class="form-group">
+                    <label>Carga Horária Semanal (horas) *</label>
+                    <input type="number" id="cargaHorariaSemanal" min="0" required placeholder="Ex: 20">
+                    <small style="color: #666;">Quantidade de horas que este curso deve ter agendadas por semana</small>
+                </div>
+                <div class="form-group" id="divProgressoCarga" style="display:none;">
+                    <label>Progresso da Carga Horária</label>
+                    <div class="progresso-container">
+                        <div class="progresso-barra">
+                            <div id="progressoBarraPreenchida" class="progresso-preenchido" style="width: 0%"></div>
+                        </div>
+                        <span id="progressoTexto">0/0 horas (0%)</span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Descrição</label>

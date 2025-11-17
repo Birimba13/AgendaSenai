@@ -28,17 +28,36 @@ function renderizarTabela() {
     const cursosFiltrados = filtrarCursos();
 
     if (cursosFiltrados.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Nenhum curso encontrado</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Nenhum curso encontrado</td></tr>';
         return;
     }
 
-    tbody.innerHTML = cursosFiltrados.map(curso => `
+    tbody.innerHTML = cursosFiltrados.map(curso => {
+        const cargaSemanal = curso.carga_horaria_semanal || 0;
+        const cargaPreenchida = curso.carga_horaria_preenchida || 0;
+        const percentual = cargaSemanal > 0 ? (cargaPreenchida / cargaSemanal) * 100 : 0;
+
+        let classeProgresso = '';
+        if (percentual >= 100) classeProgresso = 'completo';
+        else if (percentual >= 80) classeProgresso = 'quase';
+
+        return `
         <tr>
             <td>${curso.codigo}</td>
             <td>${curso.nome}</td>
             <td>${formatarNivel(curso.nivel)}</td>
             <td>${curso.carga_horaria_total || '-'} h</td>
             <td>${curso.duracao_meses || '-'} meses</td>
+            <td>
+                ${cargaSemanal > 0 ? `
+                    <div class="mini-progresso">
+                        <span>${cargaPreenchida}/${cargaSemanal}h</span>
+                        <div class="mini-barra">
+                            <div class="${classeProgresso}" style="width: ${Math.min(percentual, 100)}%"></div>
+                        </div>
+                    </div>
+                ` : '-'}
+            </td>
             <td>${curso.total_disciplinas}</td>
             <td>${curso.total_turmas}</td>
             <td>
@@ -51,7 +70,8 @@ function renderizarTabela() {
                 <button class="btn-excluir" onclick="excluirCurso(${curso.id})" title="Excluir">🗑️</button>
             </td>
         </tr>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function formatarNivel(nivel) {
@@ -99,6 +119,8 @@ function abrirModal(curso = null) {
         titulo.textContent = 'Adicionar Curso';
         cursoEditando = null;
         form.reset();
+        // Esconder progresso ao criar novo curso
+        document.getElementById('divProgressoCarga').style.display = 'none';
     }
 
     modal.style.display = 'flex';
@@ -116,8 +138,38 @@ function preencherFormulario(curso) {
     document.getElementById('nivel').value = curso.nivel;
     document.getElementById('cargaHorariaTotal').value = curso.carga_horaria_total || '';
     document.getElementById('duracaoMeses').value = curso.duracao_meses || '';
+    document.getElementById('cargaHorariaSemanal').value = curso.carga_horaria_semanal || 0;
     document.getElementById('descricao').value = curso.descricao || '';
     document.getElementById('ativo').value = curso.ativo ? '1' : '0';
+
+    // Mostrar progresso de carga horária ao editar
+    if (curso.id && curso.carga_horaria_semanal > 0) {
+        mostrarProgressoCarga(curso.carga_horaria_preenchida || 0, curso.carga_horaria_semanal);
+    }
+}
+
+function mostrarProgressoCarga(preenchida, total) {
+    const div = document.getElementById('divProgressoCarga');
+    const barra = document.getElementById('progressoBarraPreenchida');
+    const texto = document.getElementById('progressoTexto');
+
+    if (total > 0) {
+        div.style.display = 'block';
+        const percentual = (preenchida / total) * 100;
+        barra.style.width = Math.min(percentual, 100) + '%';
+
+        // Aplicar classes de cor
+        barra.className = 'progresso-preenchido';
+        if (percentual >= 100) {
+            barra.className += ' completo';
+        } else if (percentual >= 80) {
+            barra.className += ' quase';
+        }
+
+        texto.textContent = `${preenchida}/${total} horas (${percentual.toFixed(1)}%)`;
+    } else {
+        div.style.display = 'none';
+    }
 }
 
 function editarCurso(id) {
@@ -165,6 +217,7 @@ document.getElementById('formCurso').addEventListener('submit', async (e) => {
         nivel: document.getElementById('nivel').value,
         carga_horaria_total: document.getElementById('cargaHorariaTotal').value || null,
         duracao_meses: document.getElementById('duracaoMeses').value || null,
+        carga_horaria_semanal: parseInt(document.getElementById('cargaHorariaSemanal').value) || 0,
         descricao: document.getElementById('descricao').value || null,
         ativo: parseInt(document.getElementById('ativo').value)
     };

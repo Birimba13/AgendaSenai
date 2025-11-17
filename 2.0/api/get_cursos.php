@@ -12,6 +12,8 @@ try {
                 c.nivel,
                 c.carga_horaria_total,
                 c.duracao_meses,
+                c.carga_horaria_semanal,
+                c.carga_horaria_preenchida,
                 c.descricao,
                 c.ativo,
                 c.data_criacao,
@@ -21,7 +23,8 @@ try {
               LEFT JOIN disciplinas d ON c.id = d.curso_id AND d.ativo = TRUE
               LEFT JOIN turmas t ON c.id = t.curso_id AND t.ativo = TRUE
               GROUP BY c.id, c.nome, c.codigo, c.nivel, c.carga_horaria_total,
-                       c.duracao_meses, c.descricao, c.ativo, c.data_criacao
+                       c.duracao_meses, c.carga_horaria_semanal, c.carga_horaria_preenchida,
+                       c.descricao, c.ativo, c.data_criacao
               ORDER BY c.nome";
 
     $result = $mysqli->query($query);
@@ -36,6 +39,8 @@ try {
             'nivel' => $row['nivel'],
             'carga_horaria_total' => $row['carga_horaria_total'] ? (int)$row['carga_horaria_total'] : null,
             'duracao_meses' => $row['duracao_meses'] ? (int)$row['duracao_meses'] : null,
+            'carga_horaria_semanal' => $row['carga_horaria_semanal'] ? (int)$row['carga_horaria_semanal'] : 0,
+            'carga_horaria_preenchida' => $row['carga_horaria_preenchida'] ? (int)$row['carga_horaria_preenchida'] : 0,
             'descricao' => $row['descricao'],
             'ativo' => (bool)$row['ativo'],
             'data_criacao' => $row['data_criacao'],
